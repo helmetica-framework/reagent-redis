@@ -15,5 +15,5 @@ spec:
               # renovate: datasource=docker depName=registry.k8s.io/kubectl
               image: registry.k8s.io/kubectl:v1.34.1
               command: ["kubectl"]
-              args: ["rollout", "restart", "statefulset/{{ .Values.service.fullnameOverride }}-server"]
+              args: ["rollout", "restart", "statefulset/{{ .Values.redis.fullnameOverride }}-server"]
           restartPolicy: Never

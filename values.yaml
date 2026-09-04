@@ -58,27 +58,47 @@ credentials:
   # Defaults to releaseName-credentials.
   targetSecret: ""
 
-'#service':
-  export: false
 service:
+  # The size of the instance. The number is gibibytes of memory the pod may use, and cpu
+  # follows it at 250 millicores per gibibyte. Requests are set equal to the limits, so the
+  # pod is Guaranteed.
+  '#plan':
+    type: string
+    enum: [standard-1, standard-2, standard-4, standard-8]
+  plan: standard-1
+
   # How many replicas of Redis should be running.
   # 1 is a single instance
   # 3 is for a replication cluster with Sentinel
   '#replicas':
     type: integer
     enum: [1,3]
-    export: true
   replicas: 1
 
-  # Make sure the manifests have a stable name
+  # The size of the data volume. Unrelated to the plan: a dataset that fits in memory still
+  # needs room on disk for the append only file and the snapshots beside it.
+  storage: 10Gi
+
+  # redis.conf entries.
+  # maxmemory and min-replicas-to-write are computed from the plan and the replica count, and
+  # win over anything set here. Values are strings, so a number needs quoting.
+  '#config':
+    items:
+      '#':
+        type: string
+  config: {}
+
+'#redis':
+  export: false
+redis:
+  replicas: "cel: values.service.replicas"
+
   fullnameOverride: redis
 
-  # Authentication, hardcoded to be enabled
   auth: true
   existingSecret: '{{ .Release.Name }}-auth'
   authKey: auth
 
-  # The role the pods need to find each other and elect a master.
   rbac:
     create: true
 
@@ -86,24 +106,9 @@ service:
 
   podDisruptionBudget:
     maxUnavailable: 1
-  
-  haproxy:  
-    # Haproxy can be enabled to have a stable endpoint for ha deployments.
-    # Should only be enabled for replicas 3 and if the client doesn't support sentinel.
-    '#enabled':
-      export: true
-    enabled: false
-    hardAntiAffinity: true
-    podDisruptionBudget:
-      maxUnavailable: 1
-    # It parses and forwards, nothing more.
-    resources:
-      requests:
-        cpu: 50m
-        memory: 64Mi
-      limits:
-        cpu: 250m
-        memory: 128Mi
+
+  haproxy:
+    enabled: "cel: values.service.replicas > 1"
 
   exporter:
     enabled: true
@@ -111,10 +116,7 @@ service:
       enabled: false
 
   persistentVolume:
-    '#size':
-      export: true
-    size: 10Gi
-    # The backup is handled via a script. Skipping the PVC backups
+    size: "cel: values.service.storage"
     annotations:
       k8up.io/backup: '"false"'
 
@@ -123,25 +125,30 @@ service:
       configMap:
         name: backup
 
-  redis:
-     # Redis configs, will be written to redis.conf.
-    '#config':
-      export: true
+  sentinel:
+    quorum: "cel: values.service.replicas > 1 ? 2 : 1"
     config:
-      min-replicas-to-write: 0
+      down-after-milliseconds: 3000
+      failover-timeout: 5000
 
-    '#resources':
-      export: true
+  redis:
+    config: >-
+      cel: cel.bind(computed, {'maxmemory': cel.bind(n, int(values.service.plan.split('-')[1]), string(n * 768) + 'mb'),
+      'min-replicas-to-write': values.service.replicas > 1 ? 1 : 0},
+      (values.service.config.map(k, k) + computed.map(k, k)).distinct()
+      .transformMapEntry(i, k, {k: k in computed ? computed[k] : values.service.config[k]}))
+
+    # Requests equal limits, so the pod is Guaranteed.
     resources:
       requests:
-        cpu: 250m
-        memory: 512Mi
+        cpu: "cel: cel.bind(n, int(values.service.plan.split('-')[1]), string(n * 250) + 'm')"
+        memory: "cel: cel.bind(n, int(values.service.plan.split('-')[1]), string(n) + 'Gi')"
       limits:
-        cpu: 1000m
-        memory: 2Gi
+        cpu: "cel: cel.bind(n, int(values.service.plan.split('-')[1]), string(n * 250) + 'm')"
+        memory: "cel: cel.bind(n, int(values.service.plan.split('-')[1]), string(n) + 'Gi')"
 
     startupProbe:
-      # about 30 minutes, should be enough for even the largest instances.
+      # About 30 minutes, should be enough for the largest instances.
       failureThreshold: 120
 
     podAnnotations:
@@ -151,8 +158,3 @@ service:
     extraVolumeMounts:
       - name: backup-script
         mountPath: /scripts
-
-  sentinel:
-    config:
-      down-after-milliseconds: 3000
-      failover-timeout: 5000

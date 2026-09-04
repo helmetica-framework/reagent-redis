@@ -24,7 +24,10 @@ test:
     set -euo pipefail
     helm plugin list | grep -q '^unittest' \
         || helm plugin install https://github.com/helm-unittest/helm-unittest --version {{ UNITTEST_VERSION }}
-    helm lint .
+    # Linted against the computed values, not the chart's own. Chrysopoeia evaluates the
+    # cel: expressions in values.yaml before helm ever sees them, so to helm they are plain
+    # strings, and one of them sits where the subchart expects a map to range over.
+    helm lint . -f test/unit/computed-values.yaml
     helm unittest --file 'test/unit/*_test.yaml' .
 
 # Package the chart

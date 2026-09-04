@@ -125,6 +125,42 @@ spec:
                 (conditions[?type == 'Ready']):
                   - status: "True"
 
+        # Proof that chrysopoeia evaluated the cel: expressions, and that this chart's
+        # arithmetic is what it thinks it is: standard-2 is 2Gi of memory, cpu follows at
+        # 250 millicores per gibibyte, and requests equal limits so the pod is Guaranteed.
+        - assert:
+            resource:
+              apiVersion: apps/v1
+              kind: StatefulSet
+              metadata:
+                name: redis-server
+                namespace: ($instanceNs)
+              spec:
+                template:
+                  spec:
+                    (containers[?name == 'redis']):
+                      - resources:
+                          limits:
+                            cpu: 500m
+                            memory: 2Gi
+                          requests:
+                            cpu: 500m
+                            memory: 2Gi
+        # And that the derived redis.conf agrees: three quarters of the 2Gi limit, in the
+        # mebibytes redis reads `mb` as.
+        - assert:
+            resource:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: redis-configmap
+                namespace: ($instanceNs)
+              (contains(data."redis.conf", 'maxmemory 1536mb')): true
+              # The claim's own setting came through the same merge,
+              (contains(data."redis.conf", 'maxmemory-policy allkeys-lru')): true
+              # and the maxmemory it tried to set alongside it did not.
+              (contains(data."redis.conf", '99gb')): false
+
         # Custos writes the resolved credentials beside the claim rather than beside the
         # service, so this lands in the test's own namespace.
         - assert:

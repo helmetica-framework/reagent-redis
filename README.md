@@ -3,7 +3,7 @@
 A helmetica reagent for Redis, wrapping [redis-ha][redis-ha] as its prima materia.
 
 Creating one provisions a single instance Redis.
-It will create backups, networkpolicies and credendials and provide them to the user.
+It will create backups, networkpolicies and credentials and provide them to the user.
 
 [redis-ha]: https://github.com/DandyDeveloper/charts/tree/master/charts/redis-ha
 
@@ -21,11 +21,9 @@ spec:
   version: 0.0.1
   values:
     service:
+      plan: standard-2
       replicas: 3
-      haproxy:
-        enabled: true
-      persistentVolume:
-        size: 20Gi
+      storage: 20Gi
 ```
 
 The service is provisioned in its own instance namespace.
@@ -39,12 +37,12 @@ helx-redis-...
 
 | Value | Default | What it does |
 | ----- | ------- | ------------ |
+| `service.plan` | `standard-1` | Cpu and memory of the redis container. See [Plans](#plans). |
 | `service.replicas` | `1` | `1` or `3`. Three brings replication and Sentinel. See [Topology](#topology). |
-| `service.haproxy.enabled` | `false` | A proxy that always forwards to the current master. Turn it on with three replicas unless your client speaks Sentinel. |
-| `service.persistentVolume.size` | `10Gi` | The data volume, per replica. |
-| `service.redis.resources` | 250m/512Mi to 1000m/2Gi | Requests and limits for the redis container. |
-| `service.redis.config.min-replicas-to-write` | `0` | How many in-sync replicas a write needs. |
+| `service.storage` | `10Gi` | The data volume, per replica. Unrelated to the plan: a dataset that fits in memory still needs room on disk for the append only file and the snapshots beside it. |
+| `service.config` | `{}` | Extra `redis.conf` entries. Values are strings, so a number needs quoting. `maxmemory` and `min-replicas-to-write` are computed and win over anything set here. |
 | `backup.enabled` | `true` | Whether the service is backed up at all. |
+| `backup.mode` | `Schedule` | `Schedule` drives k8up over the volumes. `BucketOnly` provisions the bucket and stops there. |
 | `backup.schedule.backup` | nightly | Cron expression. Empty gets a time between 22:00 and 06:00, hashed from the instance so it stays put and no two instances collide. |
 | `backup.retention.*` | controller default | How many backups survive a prune. |
 | `network.allowedNamespaces` | `[]` | Namespaces allowed in on top of the claim's own, which is always allowed. |
@@ -53,6 +51,20 @@ helx-redis-...
 
 Everything else about the subchart is the reagent's decision and is not in the API. See
 `values.yaml` for what is fixed and why.
+
+## Plans
+
+The number in the plan is gibibytes of memory, and cpu follows it at 250 millicores per
+gibibyte. Requests are set equal to the limits, so the pod is Guaranteed. `maxmemory` is
+three quarters of the limit, leaving the rest for the copy Redis makes while it writes a
+snapshot.
+
+| Plan | Cpu | Memory | `maxmemory` |
+| ---- | --- | ------ | ----------- |
+| `standard-1` | 250m | 1Gi | 768mb |
+| `standard-2` | 500m | 2Gi | 1536mb |
+| `standard-4` | 1000m | 4Gi | 3072mb |
+| `standard-8` | 2000m | 8Gi | 6144mb |
 
 ## Credentials
 
@@ -66,7 +78,7 @@ envFrom:
 
 | Key | Notes |
 | --- | ----- |
-| `REDIS_HOST` | Fully qualified. The proxy when `haproxy.enabled`, otherwise the headless service. |
+| `REDIS_HOST` | Fully qualified. The proxy with three replicas, otherwise the headless service. |
 | `REDIS_PORT` | `6379` |
 | `REDIS_USERNAME` | `default`. Redis 6 and later map the password onto the built-in ACL user. |
 | `REDIS_PASSWORD` | Authentication password. |
@@ -79,16 +91,13 @@ envFrom:
 
 **One replica** is a single Redis that serves reads and writes. Can be scaled to 3.
 
-**Three replicas** is one master and two replicas with Sentinel electing a new master when
-the old one goes. Needs these values as well:
+**Three replicas** is one master and two replicas.
 
-- **`haproxy.enabled`.** The `redis` service is headless, so its DNS record answers with
-  every pod. A client that dials `REDIS_URL` without the proxy lands on a read-only
-  replica two writes in three and gets `READONLY`. Either turn the proxy on, or use the
-  `REDIS_SENTINEL_*` credentials with a Sentinel-aware client.
-- **`min-replicas-to-write`.** It defaults to `0` so a single instance can accept writes at
-  all. Raise it to `1` with three replicas to get back the guard against writing to a
-  master whose replicas have all gone.
+The proxy comes with it. The `redis` service is headless, so its DNS record answers with
+every pod, and a client that dials `REDIS_URL` without the proxy would land on a read-only
+replica two writes in three and get `READONLY`. `REDIS_HOST` therefore points at the proxy,
+which always forwards to the current master. A Sentinel-aware client can ignore it and use
+the `REDIS_SENTINEL_*` credentials instead.
 
 ## Backups
 
@@ -110,3 +119,4 @@ point at.
 $ just test        # helm lint and the offline unit tests, no cluster needed
 $ just touchstone  # end to end against a running athanor
 ```
+

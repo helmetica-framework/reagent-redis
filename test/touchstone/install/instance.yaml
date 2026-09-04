@@ -14,8 +14,7 @@ spec:
     backup:
       enabled: true
     service:
-      # Everything else left at the chart's defaults, which is a single replica with no
-      # proxy. hardAntiAffinity spreads the replicas over nodes, so the three replica
+      # Plan and replicas left at their defaults, which is one standard-1 instance.
+      # hardAntiAffinity spreads the replicas over nodes, so the three replica
       # configuration needs a cluster with three nodes and a local athanor has two.
-      persistentVolume:
-        size: 1Gi
+      storage: 1Gi
