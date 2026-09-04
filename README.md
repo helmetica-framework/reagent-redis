@@ -1,48 +1,112 @@
-# Ferment
+# redis
 
-Small bit of transformed matter added to base mass to convert whole, like leaven in dough.
-Philosopher's Stone often called "ferment" for this reason.
+A helmetica reagent for Redis, wrapping [redis-ha][redis-ha] as its prima materia.
 
-## Starter Chart for Helmetica Transmuter
+Creating one provisions a single instance Redis.
+It will create backups, networkpolicies and credendials and provide them to the user.
 
-This repository contains a starter chart which is used by helmetica's transmuter.
+[redis-ha]: https://github.com/DandyDeveloper/charts/tree/master/charts/redis-ha
 
-## Glossary
+## Claiming one
 
-| Term | Meaning |
-| ---- | ------- |
-| **Ferment** | This chart: the scaffold a transmutation starts from. See the [Glossary](TBD) for the full framework glossary. |
-| **Reagent** | A service chart wrapping an upstream (prima materia) chart, created by transmuting this ferment. |
-| **Prima materia** | The raw upstream Helm chart a transmutation starts from. It ends up as a dependency of the reagent; this ferment has none. |
-| **Transmuter** | The framework's chart tool: scaffolds reagents from this ferment and assays them. |
-| **Chrysopoeia** | The controller that turns a published reagent into a CRD: it reads a `CustomResourceDefinitionSource`, generates the API group `<source name>.helmetica-bundles.io` from the chart's `values.yaml`, and releases claimed instances into their own namespace. |
-| **Ritual** | A packaged `Definition` manifest (`rituals.helmetica.io/v1`) describing an operational action. Ferment ships `restart` and `maintenance` as defaults. |
-| **Assay** | Non-destructive purity test of a reagent, run by the transmuter: chart validity plus CRD breaking-change detection. Offline, no cluster. |
-| **Touchstone** | The dark stone an assayer streaks gold across to read its purity. Here the end-to-end test in `test/touchstone`, which proves the chart against a live athanor: publish, generate the CRD, claim an instance, check the release. |
-| **Athanor** | The alchemist's slow furnace. Here the local development cluster the touchstone runs against, started with `just ignite`. |
+```yaml
+apiVersion: v0.redis.helmetica-bundles.io/bundle
+kind: Redis
+metadata:
+  name: cache
+  namespace: my-app
+spec:
+  approval:
+    strategy: Automatic
+  version: 0.0.1
+  values:
+    service:
+      replicas: 3
+      haproxy:
+        enabled: true
+      persistentVolume:
+        size: 20Gi
+```
+
+The service is provisioned in its own instance namespace.
+
+```console
+$ kubectl -n my-app get redis cache -o jsonpath='{.status.instanceNamespace}'
+helx-redis-...
+```
+
+## Values
+
+| Value | Default | What it does |
+| ----- | ------- | ------------ |
+| `service.replicas` | `1` | `1` or `3`. Three brings replication and Sentinel. See [Topology](#topology). |
+| `service.haproxy.enabled` | `false` | A proxy that always forwards to the current master. Turn it on with three replicas unless your client speaks Sentinel. |
+| `service.persistentVolume.size` | `10Gi` | The data volume, per replica. |
+| `service.redis.resources` | 250m/512Mi to 1000m/2Gi | Requests and limits for the redis container. |
+| `service.redis.config.min-replicas-to-write` | `0` | How many in-sync replicas a write needs. |
+| `backup.enabled` | `true` | Whether the service is backed up at all. |
+| `backup.schedule.backup` | nightly | Cron expression. Empty gets a time between 22:00 and 06:00, hashed from the instance so it stays put and no two instances collide. |
+| `backup.retention.*` | controller default | How many backups survive a prune. |
+| `network.allowedNamespaces` | `[]` | Namespaces allowed in on top of the claim's own, which is always allowed. |
+| `network.allowAllNamespaces` | `false` | Open it to the whole cluster. |
+| `credentials.targetSecret` | `<claim>-credentials` | Where the connection details are written. |
+
+Everything else about the subchart is the reagent's decision and is not in the API. See
+`values.yaml` for what is fixed and why.
+
+## Credentials
+
+Credentials are automatically provided in the same namespace as the claim.
+
+```yaml
+envFrom:
+  - secretRef:
+      name: cache-credentials
+```
+
+| Key | Notes |
+| --- | ----- |
+| `REDIS_HOST` | Fully qualified. The proxy when `haproxy.enabled`, otherwise the headless service. |
+| `REDIS_PORT` | `6379` |
+| `REDIS_USERNAME` | `default`. Redis 6 and later map the password onto the built-in ACL user. |
+| `REDIS_PASSWORD` | Authentication password. |
+| `REDIS_URL` | `redis://default:<password>@<host>:6379`. No TLS yet, so the scheme is `redis` and not `rediss`. |
+| `REDIS_SENTINEL_HOST` | Three replicas only. The headless service, so a client sees every sentinel rather than one of them. |
+| `REDIS_SENTINEL_PORT` | Three replicas only. `26379` |
+| `REDIS_MASTER_GROUP_NAME` | Three replicas only. `mymaster` |
+
+## Topology
+
+**One replica** is a single Redis that serves reads and writes. Can be scaled to 3.
+
+**Three replicas** is one master and two replicas with Sentinel electing a new master when
+the old one goes. Needs these values as well:
+
+- **`haproxy.enabled`.** The `redis` service is headless, so its DNS record answers with
+  every pod. A client that dials `REDIS_URL` without the proxy lands on a read-only
+  replica two writes in three and gets `READONLY`. Either turn the proxy on, or use the
+  `REDIS_SENTINEL_*` credentials with a Sentinel-aware client.
+- **`min-replicas-to-write`.** It defaults to `0` so a single instance can accept writes at
+  all. Raise it to `1` with three replicas to get back the guard against writing to a
+  master whose replicas have all gone.
+
+## Backups
+
+This chart contains a backup script for Redis. The backup is automatically enabled by default.
+Backups are done via K8up and you can get existing backups via:
+
+```console
+$ kubectl -n <instance-namespace> get snapshots.k8up.io
+```
+
+## Rituals
+
+`restart` rolls the statefulset, one pod at a time, so Sentinel always has a master to
+point at.
 
 ## Testing
 
-The chart contains a chainsaw end-to-end test in `test/touchstone`, run with
-`just touchstone` against a running athanor cluster (`just ignite` in athanor,
-`KUBECONFIG` pointing at it). It publishes the chart to the in-cluster registry,
-lets chrysopoeia generate the CRD from it, claims an instance and checks the
-release. A touchstone is the dark stone an assayer streaks gold across to read
-its purity, which is what the test does to a reagent.
-
-PRs run the touchstone tests automatically, through athanor's `touchstone`
-composite action.
-
-The generated CRD's API group carries a short hash of `values.yaml` (the file
-the schema is generated from) and of the namespace chainsaw creates for the test.
-Every test therefore gets its own group and CRD, so tests running side by side,
-whether siblings of one run or two runs on a shared cluster, cannot clash.
-
-`just test` runs `helm lint` and the offline unit tests in `test/unit`, which assert
-that the templates render as expected (helm-unittest plugin, installed by the
-recipe if missing). No cluster needed.
-
-
-All three are generic and only check that the chart installs and renders
-properly. Any reagent specific tests and asserts are to be added by a service
-maintainer.
+```console
+$ just test        # helm lint and the offline unit tests, no cluster needed
+$ just touchstone  # end to end against a running athanor
+```
