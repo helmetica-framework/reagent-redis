@@ -1,0 +1,21 @@
+apiVersion: (join('', ['v', $major, '-', $id, '.', $chart, '.helmetica-bundles.io/bundle']))
+kind: ($kind)
+metadata:
+  name: instance
+spec:
+  approval:
+    strategy: Automatic
+  version: ($version)
+  # Defaults of the chart's values.yaml, apart from the two below.
+  values:
+    # On by default for this reagent, spelled out here because the BackupPolicy is what
+    # the last step asserts on. Needs ampulla and a COSI driver in the cluster, both of
+    # which athanor installs.
+    backup:
+      enabled: true
+    service:
+      # Everything else left at the chart's defaults, which is a single replica with no
+      # proxy. hardAntiAffinity spreads the replicas over nodes, so the three replica
+      # configuration needs a cluster with three nodes and a local athanor has two.
+      persistentVolume:
+        size: 1Gi

@@ -1,0 +1,39 @@
+# A client in the claim namespace, given nothing but the credentials secret custos wrote
+# there. It has to reach across into the instance namespace, past the network policies
+# sigillum wrote, and authenticate with the password the chart minted.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: redis-client
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: client
+          # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis
+          image: public.ecr.aws/docker/library/redis:8.8.0-alpine
+          # Every REDIS_ variable the Arcanum hands out, as the environment a real
+          # consumer would read.
+          envFrom:
+            - secretRef:
+                name: instance-credentials
+          command:
+            - sh
+            - -ec
+            - |
+              # A round trip through the url alone. It carries the host, the user and the
+              # password, so this one command covers the whole chain: custos resolved the
+              # objectRef into the secret the chart minted, and the value works.
+              value="touchstone-$(date +%s)"
+              redis-cli -u "$REDIS_URL" SET touchstone "$value"
+              got=$(redis-cli -u "$REDIS_URL" GET touchstone)
+              echo "read back: $got"
+              test "$got" = "$value"
+
+              # And that the password is not decoration. redis-cli exits 0 on a refused
+              # command, so the answer has to be read rather than the status.
+              refused=$(redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" GET touchstone 2>&1 || true)
+              echo "unauthenticated: $refused"
+              echo "$refused" | grep -q NOAUTH

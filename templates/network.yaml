@@ -1,0 +1,14 @@
+{{/*
+  Who may reach this service. Sigillum reads the seal off the instance and writes the
+  network policies behind it.
+*/}}
+apiVersion: seals.helmetica.io/v1
+kind: Seal
+metadata:
+  name: networkconfig
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+spec:
+  # the claim namespace is always allowed
+  allowedNamespaces: {{- toYaml .Values.network.allowedNamespaces | nindent 4 }}
+  allowAllNamespaces: {{ .Values.network.allowAllNamespaces }}

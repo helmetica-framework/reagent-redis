@@ -1,0 +1,158 @@
+# How this service is backed up. The backup controller reads these off the instance; the
+# framework itself knows nothing about backups.
+backup:
+  # Whether the service is backed up at all.
+  enabled: true
+
+  # Who takes the backups.
+  #   Schedule   - the backup controller provisions a bucket and drives k8up over the
+  #                service's volumes.
+  #   BucketOnly - it provisions the bucket and stops there, for a service whose own
+  #                operator writes backups to object storage (CloudNativePG, MariaDB).
+  '#mode':
+    type: string
+    enum: [Schedule, BucketOnly]
+  mode: Schedule
+
+  # When each job runs, as a cron expression or a k8up shortcut like `@daily-random`.
+  # Only used with mode Schedule.
+  #
+  # An empty backup gets a nightly time between 22:00 and 06:00, generated from the name
+  # of the instance so that it stays put across upgrades and no two instances start in the
+  # same minute. Empty prune and check take the backup controller's default, which runs
+  # them weekly.
+  schedule:
+    backup: ""
+    prune: ""
+    check: ""
+
+  # The COSI classes the bucket is provisioned from. Empty takes the backup controller's
+  # default, which is how a cluster keeps all its backups in one place.
+  bucketClassName: ""
+  bucketAccessClassName: ""
+
+  # How many backups survive a prune. All zero takes the backup controller's default
+  # retention. Only used with mode Schedule.
+  retention:
+    keepLast: 0
+    keepHourly: 0
+    keepDaily: 0
+    keepWeekly: 0
+    keepMonthly: 0
+    keepYearly: 0
+
+network:
+  # A list of allowed namespaces. The namespace where the claim resides is
+  # always included implicitly.
+  '#allowedNamespaces':
+    items:
+      '#':
+        type: string
+  allowedNamespaces: []
+
+  # Allow access from all namespaces.
+  allowAllNamespaces: false
+
+credentials:
+  # Secret name which will contain the service's connection details.
+  # Defaults to releaseName-credentials.
+  targetSecret: ""
+
+'#service':
+  export: false
+service:
+  # How many replicas of Redis should be running.
+  # 1 is a single instance
+  # 3 is for a replication cluster with Sentinel
+  '#replicas':
+    type: integer
+    enum: [1,3]
+    export: true
+  replicas: 1
+
+  # Make sure the manifests have a stable name
+  fullnameOverride: redis
+
+  # Authentication, hardcoded to be enabled
+  auth: true
+  existingSecret: '{{ .Release.Name }}-auth'
+  authKey: auth
+
+  # The role the pods need to find each other and elect a master.
+  rbac:
+    create: true
+
+  hardAntiAffinity: true
+
+  podDisruptionBudget:
+    maxUnavailable: 1
+  
+  haproxy:  
+    # Haproxy can be enabled to have a stable endpoint for ha deployments.
+    # Should only be enabled for replicas 3 and if the client doesn't support sentinel.
+    '#enabled':
+      export: true
+    enabled: false
+    hardAntiAffinity: true
+    podDisruptionBudget:
+      maxUnavailable: 1
+    # It parses and forwards, nothing more.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 128Mi
+
+  exporter:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+  persistentVolume:
+    '#size':
+      export: true
+    size: 10Gi
+    # The backup is handled via a script. Skipping the PVC backups
+    annotations:
+      k8up.io/backup: '"false"'
+
+  extraVolumes:
+    - name: backup-script
+      configMap:
+        name: backup
+
+  redis:
+     # Redis configs, will be written to redis.conf.
+    '#config':
+      export: true
+    config:
+      min-replicas-to-write: 0
+
+    '#resources':
+      export: true
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+    startupProbe:
+      # about 30 minutes, should be enough for even the largest instances.
+      failureThreshold: 120
+
+    podAnnotations:
+      k8up.io/backupcommand: sh /scripts/backup.sh
+      k8up.io/file-extension: .tar
+
+    extraVolumeMounts:
+      - name: backup-script
+        mountPath: /scripts
+
+  sentinel:
+    config:
+      down-after-milliseconds: 3000
+      failover-timeout: 5000

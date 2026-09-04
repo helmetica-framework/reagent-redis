@@ -1,0 +1,51 @@
+{{- if .Values.backup.enabled -}}
+apiVersion: backups.helmetica.io/v1
+kind: BackupPolicy
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+spec:
+  {{- /* Schedules and retention are ampulla's business in mode Schedule only. */}}
+  {{- $scheduled := eq .Values.backup.mode "Schedule" }}
+  mode: {{ .Values.backup.mode }}
+  {{- if $scheduled }}
+  {{- /*
+    Backups belong in the night. Without a schedule of its own the instance gets a
+    generated one rather than the controller's default of `@daily-random`, which is free
+    to pick the middle of the afternoon.
+  */}}
+  schedule:
+    backup: {{ .Values.backup.schedule.backup | default (include "redis.nightlySchedule" (printf "%s/%s" .Release.Namespace .Release.Name)) | quote }}
+    {{- /* Prune and check are weekly jobs; empty leaves them to the controller. */}}
+    {{- with .Values.backup.schedule.prune }}
+    prune: {{ . | quote }}
+    {{- end }}
+    {{- with .Values.backup.schedule.check }}
+    check: {{ . | quote }}
+    {{- end }}
+    {{- end }}
+  {{- with .Values.backup.bucketClassName }}
+  bucketClassName: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.backup.bucketAccessClassName }}
+  bucketAccessClassName: {{ . | quote }}
+  {{- end }}
+  {{- if $scheduled }}
+  {{- /*
+    Only the retention values that were actually set. An empty `retention:` key is YAML
+    null, which the API rejects as "must be of type object", and a zero here would read as
+    "keep none" when it means "take the controller's default".
+  */}}
+  {{- $retention := dict }}
+  {{- range $key, $value := .Values.backup.retention }}
+    {{- if $value }}
+      {{- $_ := set $retention $key $value }}
+    {{- end }}
+  {{- end }}
+  {{- with $retention }}
+  retention:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end -}}

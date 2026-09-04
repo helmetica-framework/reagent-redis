@@ -1,0 +1,9 @@
+apiVersion: v2
+dependencies:
+- alias: service
+  name: redis-ha
+  repository: oci://ghcr.io/helmetica-framework
+  version: 4.39.1
+name: redis
+type: application
+version: 0.0.1

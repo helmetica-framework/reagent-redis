@@ -1,0 +1,46 @@
+# Chrysopoeia only watches CustomResourceDefinitionSources in its own namespace,
+# so the source trio lives in hel-chrysopoeia and not in the test namespace.
+# Names and URLs come from the chart's own metadata, nothing here is reagent specific.
+# $id is a hash of values.yaml (which the CRD schema is generated from) and the
+# test namespace: it keeps every test run on its own API group.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: (join('', [$chart, '-v', $major, '-', $id]))
+  namespace: hel-chrysopoeia
+spec:
+  interval: 5m
+  provider: generic
+  ref:
+    semver: (join('', [$major, '.x']))
+  url: (join('', ['oci://registry.kube-system.svc:5000/charts/', $chart]))
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: (join('', [$chart, '-', $id]))
+  namespace: hel-chrysopoeia
+spec:
+  exclusionList:
+    - ^.*\.sig$
+    - ^sha256-.+$
+  image: (join('', ['registry.kube-system.svc:5000/charts/', $chart]))
+  interval: 5m
+  provider: generic
+---
+# The name becomes the API group of the generated CRD: <name>.helmetica-bundles.io
+apiVersion: helmetica.io/v1
+kind: CustomResourceDefinitionSource
+metadata:
+  name: (join('', ['v', $major, '-', $id, '.', $chart]))
+  namespace: hel-chrysopoeia
+spec:
+  reference:
+    apiVersion: source.toolkit.fluxcd.io/v1
+    kind: OCIRepository
+    name: (join('', [$chart, '-v', $major, '-', $id]))
+  versionDiscovery:
+    reference:
+      apiVersion: image.toolkit.fluxcd.io/v1
+      kind: ImageRepository
+      name: (join('', [$chart, '-', $id]))

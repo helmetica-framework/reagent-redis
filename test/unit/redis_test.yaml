@@ -1,0 +1,329 @@
+suite: redis reagent
+release:
+  name: instance
+tests:
+  # Redis carries a dataset, so unlike the ferment scaffold this reagent asks for backups
+  # by default. Turning them off is a deliberate choice an instance has to make.
+  - it: renders no BackupPolicy when backups are turned off
+    templates:
+      - backuppolicy.yaml
+    set:
+      backup.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: asks ampulla for backups by default
+    templates:
+      - backuppolicy.yaml
+    asserts:
+      - isKind:
+          of: BackupPolicy
+      - isAPIVersion:
+          of: backups.helmetica.io/v1
+      - equal:
+          path: metadata.name
+          value: instance
+      - equal:
+          path: spec.mode
+          value: Schedule
+      # Backups belong in the night, so an empty schedule is filled in here rather than
+      # left to the controller's `@daily-random`, which may pick the afternoon.
+      - matchRegex:
+          path: spec.schedule.backup
+          pattern: ^[0-9]{1,2} (22|23|0|1|2|3|4|5) \* \* \*$
+      - notExists:
+          path: spec.schedule.prune
+      - notExists:
+          path: spec.schedule.check
+      # An empty retention would render as YAML null, which the API rejects as "must be of
+      # type object", and a zero would read as "keep none" rather than "take the default".
+      - notExists:
+          path: spec.retention
+
+  - it: passes the values through to the policy
+    templates:
+      - backuppolicy.yaml
+    set:
+      backup.enabled: true
+      backup.schedule.backup: "0 2 * * *"
+      backup.bucketClassName: backups-lpg
+      backup.retention.keepDaily: 14
+    asserts:
+      - equal:
+          path: spec.schedule.backup
+          value: "0 2 * * *"
+      - notExists:
+          path: spec.schedule.prune
+      - equal:
+          path: spec.bucketClassName
+          value: backups-lpg
+      - equal:
+          path: spec.retention.keepDaily
+          value: 14
+      - notExists:
+          path: spec.retention.keepWeekly
+
+  - it: renders a ritual definition per ritual
+    templates:
+      - rituals/restart.yaml
+    asserts:
+      - isKind:
+          of: Definition
+      - isAPIVersion:
+          of: rituals.helmetica.io/v1
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.restartPolicy
+          value: Never
+
+  # redis-ha runs the pods as a statefulset named after the subchart's fullname, not as a
+  # deployment named after the release, which is what the ferment scaffold restarts.
+  - it: restarts the statefulset of the release
+    templates:
+      - rituals/restart.yaml
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].args
+          value: ["rollout", "restart", "statefulset/redis-server"]
+
+  - it: names the credentials secret after the release by default
+    templates:
+      - credentials.yaml
+    asserts:
+      - isKind:
+          of: Arcanum
+      - isAPIVersion:
+          of: arcana.helmetica.io/v1
+      - equal:
+          path: spec.target.name
+          value: instance-credentials
+
+  - it: lets the reagent name the credentials secret
+    templates:
+      - credentials.yaml
+    set:
+      credentials.targetSecret: redis-credentials
+    asserts:
+      - equal:
+          path: spec.target.name
+          value: redis-credentials
+
+  # Chrysopoeia releases the instance into a namespace of its own, so a consumer elsewhere
+  # in the cluster cannot reach it by the bare service name. By default there is no proxy,
+  # so the only endpoint to hand out is the headless service.
+  - it: hands out a fully qualified host under the keys consumers read
+    templates:
+      - credentials.yaml
+    asserts:
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_HOST.value
+          value: redis.{{.InstanceNamespace}}.svc.cluster.local
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_PORT.value
+          value: "6379"
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_USERNAME.value
+          value: default
+      # Plain `redis`, not `rediss`: there is no TLS on this service yet.
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_URL.value
+          value: redis://{{.REDIS_USERNAME}}:{{.REDIS_PASSWORD}}@{{.REDIS_HOST}}:{{.REDIS_PORT}}
+
+  # The headless record answers with every pod, replicas included, so a client writing to
+  # it hits a read only replica two times in three. With the proxy in front there is one
+  # endpoint that always forwards to the master.
+  - it: points at the proxy instead when one is asked for
+    templates:
+      - credentials.yaml
+    set:
+      service.replicas: 3
+      service.haproxy.enabled: true
+    asserts:
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_HOST.value
+          value: redis-haproxy.{{.InstanceNamespace}}.svc.cluster.local
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_PORT.value
+          value: "6379"
+
+  # A single replica is its own master for good, so there is no failover for a client to
+  # follow and nothing to ask sentinel about.
+  - it: hands out no sentinel details for a single instance
+    templates:
+      - credentials.yaml
+    asserts:
+      - notExists:
+          path: spec.credentials.valueMapping.REDIS_SENTINEL_HOST
+      - notExists:
+          path: spec.credentials.valueMapping.REDIS_SENTINEL_PORT
+      - notExists:
+          path: spec.credentials.valueMapping.REDIS_MASTER_GROUP_NAME
+
+  # The sentinel host stays the headless service even when a proxy is in front of redis: a
+  # sentinel aware client wants to reach every sentinel, not whichever one a proxy picks.
+  - it: hands out the sentinel details once there is a failover to follow
+    templates:
+      - credentials.yaml
+    set:
+      service.replicas: 3
+      service.haproxy.enabled: true
+    asserts:
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_SENTINEL_HOST.value
+          value: redis.{{.InstanceNamespace}}.svc.cluster.local
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_SENTINEL_PORT.value
+          value: "26379"
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_MASTER_GROUP_NAME.value
+          value: mymaster
+
+  # The one credential the chart mints itself, since arcana has no source that invents a
+  # value. Both ends of that handover have to name the same secret and key.
+  - it: reads the password back out of the secret the chart mints
+    templates:
+      - credentials.yaml
+    asserts:
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_PASSWORD.source
+          value: objectRef
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_PASSWORD.name
+          value: instance-auth
+      - equal:
+          path: spec.credentials.valueMapping.REDIS_PASSWORD.key
+          value: auth
+
+  # Rendered without a cluster to read back from, so the password is a fresh random string
+  # every run. Only its presence can be asserted, never its value.
+  - it: mints an auth secret for the release
+    templates:
+      - auth-secret.yaml
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: metadata.name
+          value: instance-auth
+      - exists:
+          path: data.auth
+
+  # k8up execs this in the redis container. It has to leave stdout to the tar, or the
+  # backup is the script's chatter instead of the dataset.
+  - it: ships the backup script k8up execs
+    templates:
+      - backup-script.yaml
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: backup
+      - matchRegex:
+          path: data["backup.sh"]
+          pattern: 'redis-cli -a "\$\{REDIS_PASSWORD\}"'
+      - matchRegex:
+          path: data["backup.sh"]
+          pattern: 'tar -cf - /data'
+
+  - it: seals the service off by default
+    templates:
+      - network.yaml
+    asserts:
+      - isKind:
+          of: Seal
+      - equal:
+          path: spec.allowedNamespaces
+          value: []
+      - equal:
+          path: spec.allowAllNamespaces
+          value: false
+
+  # Rendered without toYaml this comes out as `[alpha beta]`, which YAML reads as the
+  # single string "alpha beta" rather than two namespaces.
+  - it: passes every allowed namespace through as its own list entry
+    templates:
+      - network.yaml
+    set:
+      network.allowedNamespaces: [alpha, beta]
+    asserts:
+      - equal:
+          path: spec.allowedNamespaces
+          value: [alpha, beta]
+
+  - it: labels every resource it renders
+    templates:
+      - credentials.yaml
+      - network.yaml
+      - backuppolicy.yaml
+      - auth-secret.yaml
+      - backup-script.yaml
+      - rituals/restart.yaml
+    set:
+      backup.enabled: true
+    asserts:
+      - exists:
+          path: metadata.labels["helm.sh/chart"]
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: redis
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: instance
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm
+
+  # Helm re-renders on every reconcile. A time drawn at random each time would move the
+  # backup every few minutes, so it is hashed out of the instance instead.
+  - it: gives an instance the same nightly time on every render
+    templates:
+      - backuppolicy.yaml
+    release:
+      name: instance
+      namespace: instance-ns
+    set:
+      backup.enabled: true
+    asserts:
+      - equal:
+          path: spec.schedule.backup
+          value: "12 23 * * *"
+
+  - it: gives another instance a different nightly time
+    templates:
+      - backuppolicy.yaml
+    release:
+      name: instance
+      namespace: other-ns
+    set:
+      backup.enabled: true
+    asserts:
+      - notEqual:
+          path: spec.schedule.backup
+          value: "12 23 * * *"
+      - matchRegex:
+          path: spec.schedule.backup
+          pattern: ^[0-9]{1,2} (22|23|0|1|2|3|4|5) \* \* \*$
+
+  # In BucketOnly mode the service's own operator writes the backups. Ampulla only hands it
+  # a bucket, and neither schedule nor retention is its to act on.
+  - it: asks for nothing but a bucket when the service backs itself up
+    templates:
+      - backuppolicy.yaml
+    set:
+      backup.enabled: true
+      backup.mode: BucketOnly
+      backup.schedule.backup: "0 2 * * *"
+      backup.retention.keepDaily: 14
+      backup.bucketClassName: backups-lpg
+    asserts:
+      - equal:
+          path: spec.mode
+          value: BucketOnly
+      - equal:
+          path: spec.bucketClassName
+          value: backups-lpg
+      - notExists:
+          path: spec.schedule
+      - notExists:
+          path: spec.retention

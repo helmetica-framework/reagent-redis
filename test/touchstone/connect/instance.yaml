@@ -1,0 +1,17 @@
+apiVersion: (join('', ['v', $major, '-', $id, '.', $chart, '.helmetica-bundles.io/bundle']))
+kind: ($kind)
+metadata:
+  name: instance
+spec:
+  approval:
+    strategy: Automatic
+  version: ($version)
+  values:
+    # Nothing to back up here, and a bucket per test run is a cost this one does not need.
+    backup:
+      enabled: false
+    service:
+      # Defaults otherwise, which is a single replica with no proxy in front. The claim
+      # namespace is allowed through the Seal implicitly, so nothing has to be opened up.
+      persistentVolume:
+        size: 1Gi

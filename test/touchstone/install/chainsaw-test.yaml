@@ -1,0 +1,210 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: install
+spec:
+  description: >-
+    Publishes the chart to the athanor registry, lets chrysopoeia turn it into a
+    CRD, claims an instance and checks that the released workload runs.
+    Everything is derived from Chart.yaml, so this test needs no edits after a
+    transmutation. Add the assertions for the reagent's own workload to the last
+    step.
+  steps:
+    - name: publish the chart
+      try:
+        - script:
+            content: |
+              set -eu
+              cd ../../..
+              helm dependency build .
+              helm package .
+              ca=$(mktemp)
+              trap 'rm -f "$ca"' EXIT
+              kubectl -n kube-system get secret tls-server-certificate \
+                -o jsonpath='{.data.ca\.crt}' | base64 -d > "$ca"
+              chart=$(awk '/^name:/{print $2}' Chart.yaml)
+              version=$(awk '/^version:/{print $2}' Chart.yaml)
+              helm push "$chart-$version.tgz" oci://localhost:5000/charts --ca-file "$ca"
+
+    - name: claim an instance and check its workload
+      try:
+        - script:
+            content: awk '/^name:/{printf "%s", $2}' ../../../Chart.yaml
+            outputs:
+              - name: chart
+                value: ($stdout)
+        - script:
+            content: awk '/^version:/{printf "%s", $2}' ../../../Chart.yaml
+            outputs:
+              - name: version
+                value: ($stdout)
+        - script:
+            content: awk '/^version:/{split($2, v, "."); printf "%s", v[1]}' ../../../Chart.yaml
+            outputs:
+              - name: major
+                value: ($stdout)
+        # Hash of values.yaml, the file the CRD schema is generated from, plus
+        # the test namespace chainsaw generated: every test gets its own API
+        # group, so parallel runs and sibling tests never share a CRD.
+        - script:
+            content: |
+              { cat ../../../values.yaml; echo "$NAMESPACE"; } \
+                | sha256sum | cut -c1-8 | tr -d '\n'
+            outputs:
+              - name: id
+                value: ($stdout)
+
+        - apply:
+            file: sources.yaml
+        - assert:
+            resource:
+              apiVersion: helmetica.io/v1
+              kind: CustomResourceDefinitionSource
+              metadata:
+                name: (join('', ['v', $major, '-', $id, '.', $chart]))
+                namespace: hel-chrysopoeia
+              status:
+                (conditions[?type == 'Ready']):
+                  - status: "True"
+
+        # Chrysopoeia derives kind and plural from the chart, so both are read.
+        - script:
+            content: |
+              kubectl get crd \
+                -o jsonpath="{.items[?(@.spec.group=='v$MAJOR-$ID.$CHART.helmetica-bundles.io')].spec.names.kind}"
+            env:
+              - name: CHART
+                value: ($chart)
+              - name: MAJOR
+                value: ($major)
+              - name: ID
+                value: ($id)
+            outputs:
+              - name: kind
+                value: ($stdout)
+        - script:
+            content: |
+              kubectl get crd \
+                -o jsonpath="{.items[?(@.spec.group=='v$MAJOR-$ID.$CHART.helmetica-bundles.io')].metadata.name}"
+            env:
+              - name: CHART
+                value: ($chart)
+              - name: MAJOR
+                value: ($major)
+              - name: ID
+                value: ($id)
+            outputs:
+              - name: crd
+                value: ($stdout)
+
+        - apply:
+            file: instance.yaml
+        - assert:
+            resource:
+              apiVersion: (join('', ['v', $major, '-', $id, '.', $chart, '.helmetica-bundles.io/bundle']))
+              kind: ($kind)
+              metadata:
+                name: instance
+              status:
+                releaseStatus: Ready
+
+        # Chrysopoeia releases the chart into a namespace of its own.
+        - script:
+            content: kubectl -n $NAMESPACE get $CRD instance -o jsonpath='{.status.instanceNamespace}'
+            env:
+              - name: CRD
+                value: ($crd)
+            outputs:
+              - name: instanceNs
+                value: ($stdout)
+        - assert:
+            resource:
+              apiVersion: helm.toolkit.fluxcd.io/v2
+              kind: HelmRelease
+              metadata:
+                name: instance
+                namespace: ($instanceNs)
+              status:
+                (conditions[?type == 'Ready']):
+                  - status: "True"
+
+        # The reagent's own workload. redis-ha pins the name through fullnameOverride, so
+        # it is the same whatever the instance is called.
+        - assert:
+            resource:
+              apiVersion: apps/v1
+              kind: StatefulSet
+              metadata:
+                name: redis-server
+                namespace: ($instanceNs)
+              (status.readyReplicas == spec.replicas): true
+        # The password the chart mints for redis, which the Arcanum below reads back. Its
+        # value is generated once and then read out of the cluster on every later render,
+        # so nothing here asserts what it is.
+        - assert:
+            resource:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: instance-auth
+                namespace: ($instanceNs)
+              type: Opaque
+        # Only that the Arcanum was released. What custos makes of it, and whether a
+        # client can use the result, is the connect test's business.
+        - assert:
+            resource:
+              apiVersion: arcana.helmetica.io/v1
+              kind: Arcanum
+              metadata:
+                name: credentials
+                namespace: ($instanceNs)
+        # The whole contract between a reagent and ampulla: the chart renders the policy,
+        # ampulla provisions the bucket and the schedule behind it. Ready means a real
+        # bucket exists in athanor's Garage and k8up has a Schedule pointed at it.
+        - assert:
+            resource:
+              apiVersion: backups.helmetica.io/v1
+              kind: BackupPolicy
+              metadata:
+                name: instance
+                namespace: ($instanceNs)
+              status:
+                phase: Ready
+        - assert:
+            resource:
+              apiVersion: rituals.helmetica.io/v1
+              kind: Definition
+              metadata:
+                name: restart
+                namespace: ($instanceNs)
+
+      catch:
+        - describe:
+            apiVersion: helmetica.io/v1
+            kind: CustomResourceDefinitionSource
+            namespace: hel-chrysopoeia
+        - describe:
+            apiVersion: source.toolkit.fluxcd.io/v1
+            kind: OCIRepository
+            namespace: hel-chrysopoeia
+        - describe:
+            apiVersion: helmetica.io/v1
+            kind: InstanceRevision
+        - describe:
+            apiVersion: backups.helmetica.io/v1
+            kind: BackupPolicy
+        - podLogs:
+            namespace: hel-chrysopoeia
+            selector: control-plane=controller-manager
+            tail: 50
+        - podLogs:
+            namespace: hel-ampulla
+            selector: control-plane=controller-manager
+            tail: 50
+      cleanup:
+        # Chrysopoeia owns the generated CRD, chainsaw does not clean it up.
+        - script:
+            content: kubectl delete crd $CRD --ignore-not-found
+            env:
+              - name: CRD
+                value: ($crd)
