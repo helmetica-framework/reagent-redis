@@ -1,0 +1,13 @@
+{{/*
+  Redis doesn't need any special housekeeping every week.
+  So we only run the version bump.
+*/}}
+apiVersion: rituals.helmetica.io/v1
+kind: Maintenance
+metadata:
+  name: default
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+spec:
+  window: {{ .Values.maintenance.window | quote }}
+  suspend: {{ .Values.maintenance.suspend }}

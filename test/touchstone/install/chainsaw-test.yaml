@@ -177,6 +177,15 @@ spec:
               metadata:
                 name: restart
                 namespace: ($instanceNs)
+        # Only that the schedule reaches the instance. What the adept resolves it to
+        # depends on the MaintenanceWindows the cluster happens to carry.
+        - assert:
+            resource:
+              apiVersion: rituals.helmetica.io/v1
+              kind: Maintenance
+              metadata:
+                name: default
+                namespace: ($instanceNs)
 
       catch:
         - describe:

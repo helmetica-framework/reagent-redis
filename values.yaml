@@ -53,6 +53,16 @@ network:
   # Allow access from all namespaces.
   allowAllNamespaces: false
 
+# When this service's maintenance runs. The adept reads these off the instance.
+maintenance:
+  # Which MaintenanceWindow this instance starts in. Empty takes the
+  # operator's default window.
+  window: ""
+
+  # Whether maintenance runs at all. A suspended instance keeps its schedule
+  # and does not fire it.
+  suspend: false
+
 credentials:
   # Secret name which will contain the service's connection details.
   # Defaults to releaseName-credentials.
