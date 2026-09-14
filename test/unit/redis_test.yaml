@@ -1,4 +1,6 @@
 suite: redis reagent
+values:
+  - ./computed-values.yaml
 release:
   name: instance
 tests:
@@ -129,15 +131,13 @@ tests:
           path: spec.credentials.valueMapping.REDIS_URL.value
           value: redis://{{.REDIS_USERNAME}}:{{.REDIS_PASSWORD}}@{{.REDIS_HOST}}:{{.REDIS_PORT}}
 
-  # The headless record answers with every pod, replicas included, so a client writing to
-  # it hits a read only replica two times in three. With the proxy in front there is one
-  # endpoint that always forwards to the master.
-  - it: points at the proxy instead when one is asked for
+  # Three replicas means a proxy in front, because the headless record answers with every
+  # pod and a client writing to it hits a read only replica two times in three.
+  - it: points at the proxy once there is a master to pick
     templates:
       - credentials.yaml
     set:
       service.replicas: 3
-      service.haproxy.enabled: true
     asserts:
       - equal:
           path: spec.credentials.valueMapping.REDIS_HOST.value
@@ -159,14 +159,13 @@ tests:
       - notExists:
           path: spec.credentials.valueMapping.REDIS_MASTER_GROUP_NAME
 
-  # The sentinel host stays the headless service even when a proxy is in front of redis: a
+  # The sentinel host stays the headless service even with the proxy in front of redis: a
   # sentinel aware client wants to reach every sentinel, not whichever one a proxy picks.
   - it: hands out the sentinel details once there is a failover to follow
     templates:
       - credentials.yaml
     set:
       service.replicas: 3
-      service.haproxy.enabled: true
     asserts:
       - equal:
           path: spec.credentials.valueMapping.REDIS_SENTINEL_HOST.value

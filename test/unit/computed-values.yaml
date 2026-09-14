@@ -1,0 +1,30 @@
+# What chrysopoeia computes from the cel: expressions in values.yaml, for the chart's own
+# defaults. Helm does not evaluate them, so without this every render below the subchart is
+# the literal string "cel: ..." and the manifests do not parse.
+#
+# Nothing here is asserted on. The unit tests only render this chart's own templates, which
+# read `service.*` and never the computed values; this file exists so the subchart renders
+# at all. The touchstone is what proves the expressions themselves, because chrysopoeia
+# evaluates them there for real.
+#
+# Regenerate against pkg/celvalues in chrysopoeia if the expressions change.
+redis:
+  haproxy:
+    enabled: false
+  persistentVolume:
+    size: 10Gi
+  redis:
+    config:
+      maxmemory: 768mb
+      min-replicas-to-write: 0
+    resources:
+      limits:
+        cpu: 250m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+  replicas: 1
+  sentinel:
+    quorum: 1
+
