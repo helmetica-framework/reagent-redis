@@ -7,7 +7,8 @@
 # at all. The touchstone is what proves the expressions themselves, because chrysopoeia
 # evaluates them there for real.
 #
-# Regenerate against pkg/celvalues in chrysopoeia if the expressions change.
+# Generated against pkg/celvalues in chrysopoeia; regenerate it there if the expressions
+# change.
 redis:
   haproxy:
     enabled: false
@@ -27,4 +28,3 @@ redis:
   replicas: 1
   sentinel:
     quorum: 1
-

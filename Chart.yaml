@@ -1,5 +1,9 @@
 apiVersion: v2
 dependencies:
+# The framework's shared templates. templates/azoth.yaml is what renders them.
+- name: azoth
+  repository: oci://ghcr.io/helmetica-framework
+  version: 0.0.1
 - alias: redis
   name: redis-ha
   repository: oci://ghcr.io/helmetica-framework

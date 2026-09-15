@@ -5,7 +5,14 @@ A helmetica reagent for Redis, wrapping [redis-ha][redis-ha] as its prima materi
 Creating one provisions a single instance Redis.
 It will create backups, networkpolicies and credentials and provide them to the user.
 
+The backup policy, the network seal and the maintenance window come from [azoth][azoth],
+the framework's library chart, through the single include in `templates/azoth.yaml`. The
+credentials arcanum stays here, in `templates/credentials.yaml`, because its mapping varies
+with the replica count. The auth secret, the backup script, the rituals and the values in
+`values.yaml` are this chart's own too.
+
 [redis-ha]: https://github.com/DandyDeveloper/charts/tree/master/charts/redis-ha
+[azoth]: https://github.com/helmetica-framework/azoth
 
 ## Claiming one
 
@@ -119,4 +126,15 @@ point at.
 $ just test        # helm lint and the offline unit tests, no cluster needed
 $ just touchstone  # end to end against a running athanor
 ```
+
+`just test` needs azoth to be reachable for `helm dependency build`. What azoth renders is
+tested in azoth; the unit tests here cover this chart's own templates and the wiring.
+
+The `cel:` expressions in `values.yaml` are chrysopoeia's to evaluate, not helm's, so the
+offline tests render against `test/unit/computed-values.yaml`, generated from
+`pkg/celvalues` in chrysopoeia. Regenerate it there if the expressions change. The
+touchstone is what proves the expressions themselves.
+
+To develop against a local azoth checkout, `just link ../azoth`, and `just unlink` when
+done. `push` and `release` refuse to run while it is linked.
 

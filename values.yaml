@@ -42,6 +42,11 @@ backup:
     keepYearly: 0
 
 network:
+  # Whether the framework seals this service off at all. Not settable on a claim.
+  '#enabled':
+    export: false
+  enabled: true
+
   # A list of allowed namespaces. The namespace where the claim resides is
   # always included implicitly.
   '#allowedNamespaces':
@@ -55,6 +60,11 @@ network:
 
 # When this service's maintenance runs. The adept reads these off the instance.
 maintenance:
+  # Whether this service takes part in maintenance at all. Not settable on a claim.
+  '#enabled':
+    export: false
+  enabled: true
+
   # Which MaintenanceWindow this instance starts in. Empty takes the
   # operator's default window.
   window: ""
@@ -64,6 +74,13 @@ maintenance:
   suspend: false
 
 credentials:
+  # Rendered by templates/credentials.yaml rather than azoth: the mapping varies with the
+  # replica count, which is a helm decision this chart makes for itself. Not settable on a
+  # claim.
+  '#enabled':
+    export: false
+  enabled: false
+
   # Secret name which will contain the service's connection details.
   # Defaults to releaseName-credentials.
   targetSecret: ""

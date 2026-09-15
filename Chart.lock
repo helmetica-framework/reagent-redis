@@ -1,6 +1,0 @@
-dependencies:
-- name: redis-ha
-  repository: oci://ghcr.io/helmetica-framework
-  version: 4.39.1
-digest: sha256:89e574579429a1e99bd43952d6c56c9baa8752adb00ccf3ea628b9dfcc75edf8
-generated: "2026-09-04T12:56:33.298302672Z"

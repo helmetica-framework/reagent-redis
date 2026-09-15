@@ -1,0 +1,7 @@
+{{- /*
+  Everything the framework renders on top of this service: the credentials arcanum, the
+  network seal, the maintenance window and the backup policy. Each is gated by its own
+  `enabled` value. The templates live in azoth so a fix reaches this reagent on the next
+  version bump.
+*/}}
+{{- include "azoth.all" . }}

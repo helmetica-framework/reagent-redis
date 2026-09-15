@@ -3,7 +3,7 @@ kind: Definition
 metadata:
   name: restart
   labels:
-    {{- include "redis.labels" . | nindent 4 }}
+    {{- include "azoth.labels" . | nindent 4 }}
 spec:
   description: Restart the application
   jobTemplate:

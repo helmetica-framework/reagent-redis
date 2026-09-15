@@ -3,6 +3,8 @@ version := `awk '/^version:/{print $2}' Chart.yaml`
 major := `awk '/^version:/{split($2, v, "."); print v[1]}' Chart.yaml`
 
 REGISTRY := "oci://ghcr.io/helmetica-framework"
+# Holds the released azoth dependency while `just link` points it at a checkout
+AZOTH_LINK := ".azoth-link"
 # Registry of a local athanor (just ignite), reachable as localhost from the host
 # and as registry.kube-system.svc from inside the cluster.
 ATHANOR_REGISTRY := "localhost:5000/charts"
@@ -24,19 +26,61 @@ test:
     set -euo pipefail
     helm plugin list | grep -q '^unittest' \
         || helm plugin install https://github.com/helm-unittest/helm-unittest --version {{ UNITTEST_VERSION }}
-    # Linted against the computed values, not the chart's own. Chrysopoeia evaluates the
-    # cel: expressions in values.yaml before helm ever sees them, so to helm they are plain
-    # strings, and one of them sits where the subchart expects a map to range over.
-    helm lint . -f test/unit/computed-values.yaml
+    helm dependency update .
+    helm lint .
     helm unittest --file 'test/unit/*_test.yaml' .
 
 # Package the chart
 build:
-    helm dependency build .
+    helm dependency update .
     helm package .
 
+# Develop against a local azoth checkout: just link ../azoth
+link path="../azoth":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test ! -f {{ AZOTH_LINK }} || { echo "already linked, run 'just unlink' first"; exit 1; }
+    test -f "{{ path }}/Chart.yaml" || { echo "no chart at {{ path }}"; exit 1; }
+    yq '.dependencies[] | select(.name == "azoth") | [.repository, .version] | .[]' \
+        Chart.yaml > {{ AZOTH_LINK }}
+    just _azoth-dep "file://{{ path }}" "$(yq '.version' "{{ path }}/Chart.yaml")"
+    helm dependency update .
+
+# Point the azoth dependency back at the registry
+unlink:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test -f {{ AZOTH_LINK }} || exit 0
+    { read -r repository; read -r version; } < {{ AZOTH_LINK }}
+    just _azoth-dep "$repository" "$version"
+    rm -f {{ AZOTH_LINK }} Chart.lock charts/azoth-*.tgz
+    echo "azoth dependency restored to $repository $version"
+
+# Rewrite the azoth dependency's repository and version, leaving the rest of Chart.yaml alone
+_azoth-dep repository version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    awk -v repo='{{ repository }}' -v ver='{{ version }}' '
+        /^[[:space:]]*-[[:space:]]*name:[[:space:]]*azoth[[:space:]]*$/ { inblock=1; print; next }
+        /^[[:space:]]*-[[:space:]]/ { inblock=0 }
+        inblock && /^[[:space:]]*repository:/ { sub(/repository:.*/, "repository: " repo); print; next }
+        inblock && /^[[:space:]]*version:/ { sub(/version:.*/, "version: " ver); print; next }
+        { print }
+    ' Chart.yaml > Chart.yaml.tmp
+    mv Chart.yaml.tmp Chart.yaml
+
+# Refuse to run while the azoth dependency points at a local checkout
+_guard-unlinked:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    repository=$(yq '.dependencies[] | select(.name == "azoth") | .repository' Chart.yaml)
+    if [ -f {{ AZOTH_LINK }} ] || [ "${repository#file://}" != "$repository" ]; then
+        echo "azoth is $repository, run 'just unlink' first"
+        exit 1
+    fi
+
 # Push the packaged chart to the registry
-push: build
+push: _guard-unlinked build
     helm push {{ chart }}-{{ version }}.tgz {{ REGISTRY }}
 
 # Read the reagent's purity: end-to-end test against a running athanor cluster (just ignite).
@@ -44,7 +88,7 @@ touchstone:
     {{ CHAINSAW_CMD }} test --config test/touchstone/chainsaw-config.yaml test/touchstone
 
 # Push main, tag the current commit and push the tag to trigger the release
-release:
+release: _guard-unlinked
     #!/usr/bin/env bash
     set -euo pipefail
     # Abort if the Chart.yaml version on main doesn't match the working copy.

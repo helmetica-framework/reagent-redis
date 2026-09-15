@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: backup
   labels:
-    {{- include "redis.labels" . | nindent 4 }}
+    {{- include "azoth.labels" . | nindent 4 }}
 data:
   # Works with the append only file both on and off: it makes sure no rewrite is running
   # while the backup reads /data. If there is a dump file it is picked up along with it.
