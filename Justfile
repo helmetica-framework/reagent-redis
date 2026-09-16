@@ -17,17 +17,61 @@ CHAINSAW_CMD := "go run github.com/kyverno/chainsaw@" + CHAINSAW_VERSION
 # renovate: datasource=github-releases depName=helm-unittest/helm-unittest
 UNITTEST_VERSION := "v1.1.2"
 
+# Pinned until we have a tag, renovate bumps it
+# renovate: datasource=go depName=github.com/helmetica-framework/transmuter
+TRANSMUTER_VERSION := "v0.0.0-20260916083147-e03aac06c783"
+TRANSMUTER_CMD := "go run github.com/helmetica-framework/transmuter@" + TRANSMUTER_VERSION
+
 _default:
     @just --list
 
-# Lint the chart and unit test the rendered templates
-test:
+# Write the values the cel: expressions compute, for the defaults and every scenario (--check to verify instead)
+values *FLAGS:
     #!/usr/bin/env bash
     set -euo pipefail
-    helm plugin list | grep -q '^unittest' \
-        || helm plugin install https://github.com/helm-unittest/helm-unittest --version {{ UNITTEST_VERSION }}
+    # nullglob: a reagent with no scenarios must not iterate the pattern itself
+    shopt -s nullglob
+    for scenario in test/unit/scenarios/*/values.yaml; do
+        {{ TRANSMUTER_CMD }} values --name instance \
+            -f "$scenario" \
+            --output "$(dirname "$scenario")/computed.yaml" {{ FLAGS }}
+    done
+
+# Install the helm-unittest plugin, unless it is already there
+_unittest:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # No `| grep -q`: it exits on the first match, and the SIGPIPE that gives
+    # helm trips pipefail often enough to make this flaky.
+    installed=$(helm plugin list)
+    case "$installed" in
+        *unittest*) exit 0 ;;
+    esac
+    # helm 4 refuses an unsigned plugin source without --verify=false, and helm 3
+    # has no such flag, so ask helm which one it is.
+    verify=()
+    help=$(helm plugin install --help 2>&1)
+    case "$help" in
+        *--verify*) verify=(--verify=false) ;;
+    esac
+    helm plugin install https://github.com/helm-unittest/helm-unittest \
+        --version {{ UNITTEST_VERSION }} "${verify[@]}"
+
+# Regenerate every snapshot, for the defaults and every scenario
+gen-golden-all: values _unittest
+    #!/usr/bin/env bash
+    set -euo pipefail
     helm dependency update .
-    helm lint .
+    helm unittest --update-snapshot --file 'test/unit/*_test.yaml' .
+
+# Lint the chart and snapshot test the rendered templates
+test: (values "--check") _unittest
+    #!/usr/bin/env bash
+    set -euo pipefail
+    helm dependency update .
+    # with the computed values: lint renders the chart, and a subchart cannot
+    # iterate over a raw cel: expression
+    helm lint -f test/unit/scenarios/default/computed.yaml .
     helm unittest --file 'test/unit/*_test.yaml' .
 
 # Package the chart
@@ -105,7 +149,7 @@ release: _guard-unlinked
 
 # Install the reagent via helm install
 mix namespace="default":
-    transmuter mix --namespace {{ namespace }}
+    {{ TRANSMUTER_CMD }} mix --namespace {{ namespace }}
 
 # Install the reagent via helmetica into a running athanor cluster (just ignite).
 # An id, when given, is folded into the API group and the source names, so a

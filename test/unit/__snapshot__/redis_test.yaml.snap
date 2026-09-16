@@ -1,0 +1,394 @@
+renders in ha:
+  1: |
+    apiVersion: seals.helmetica.io/v1
+    kind: Seal
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: networkconfig
+    spec:
+      allowAllNamespaces: false
+      allowedNamespaces: []
+  2: |
+    apiVersion: rituals.helmetica.io/v1
+    kind: Maintenance
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: default
+    spec:
+      suspend: false
+      window: ""
+  3: |
+    apiVersion: backups.helmetica.io/v1
+    kind: BackupPolicy
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: instance
+    spec:
+      mode: Schedule
+      schedule:
+        backup: 2 2 * * *
+  4: |
+    apiVersion: v1
+    data:
+      backup.sh: |
+        #!/bin/sh
+
+        REDIS_PASSWORD=$AUTH
+
+        redis_cmd() {
+          redis-cli -a "${REDIS_PASSWORD}" "$@"
+        }
+
+        rewrite_percentage=$(redis_cmd --raw CONFIG GET auto-aof-rewrite-percentage | tail -n 1) 1>&2
+
+        redis_cmd CONFIG SET auto-aof-rewrite-percentage 0 1>&2
+
+        redis_cmd SAVE 1>&2
+
+        until redis_cmd INFO persistence | grep aof_rewrite_in_progress:0 > /dev/null
+        do
+          sleep 1
+        done
+
+        tar -cf - /data
+
+        redis_cmd CONFIG SET auto-aof-rewrite-percentage "${rewrite_percentage}" 1>&2
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: backup
+  5: |
+    apiVersion: arcana.helmetica.io/v1
+    kind: Arcanum
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: credentials
+    spec:
+      credentials:
+        valueMapping:
+          REDIS_HOST:
+            source: template
+            value: redis-haproxy.{{.InstanceNamespace}}.svc.cluster.local
+          REDIS_MASTER_GROUP_NAME:
+            source: const
+            value: mymaster
+          REDIS_PASSWORD:
+            key: auth
+            kind: Secret
+            name: instance-auth
+            source: objectRef
+          REDIS_PORT:
+            source: const
+            value: "6379"
+          REDIS_SENTINEL_HOST:
+            source: template
+            value: redis.{{.InstanceNamespace}}.svc.cluster.local
+          REDIS_SENTINEL_PORT:
+            source: const
+            value: "26379"
+          REDIS_URL:
+            source: template
+            value: redis://{{.REDIS_USERNAME}}:{{.REDIS_PASSWORD}}@{{.REDIS_HOST}}:{{.REDIS_PORT}}
+          REDIS_USERNAME:
+            source: const
+            value: default
+      target:
+        name: instance-credentials
+  6: |
+    apiVersion: rituals.helmetica.io/v1
+    kind: Definition
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: restart
+    spec:
+      description: Restart the application
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+                - args:
+                    - rollout
+                    - restart
+                    - statefulset/redis-server
+                  command:
+                    - kubectl
+                  image: registry.k8s.io/kubectl:v1.34.1
+                  name: restart
+              restartPolicy: Never
+renders what it rendered last time:
+  1: |
+    apiVersion: seals.helmetica.io/v1
+    kind: Seal
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: networkconfig
+    spec:
+      allowAllNamespaces: false
+      allowedNamespaces: []
+  2: |
+    apiVersion: rituals.helmetica.io/v1
+    kind: Maintenance
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: default
+    spec:
+      suspend: false
+      window: ""
+  3: |
+    apiVersion: backups.helmetica.io/v1
+    kind: BackupPolicy
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: instance
+    spec:
+      mode: Schedule
+      schedule:
+        backup: 2 2 * * *
+  4: |
+    apiVersion: v1
+    data:
+      backup.sh: |
+        #!/bin/sh
+
+        REDIS_PASSWORD=$AUTH
+
+        redis_cmd() {
+          redis-cli -a "${REDIS_PASSWORD}" "$@"
+        }
+
+        rewrite_percentage=$(redis_cmd --raw CONFIG GET auto-aof-rewrite-percentage | tail -n 1) 1>&2
+
+        redis_cmd CONFIG SET auto-aof-rewrite-percentage 0 1>&2
+
+        redis_cmd SAVE 1>&2
+
+        until redis_cmd INFO persistence | grep aof_rewrite_in_progress:0 > /dev/null
+        do
+          sleep 1
+        done
+
+        tar -cf - /data
+
+        redis_cmd CONFIG SET auto-aof-rewrite-percentage "${rewrite_percentage}" 1>&2
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: backup
+  5: |
+    apiVersion: arcana.helmetica.io/v1
+    kind: Arcanum
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: credentials
+    spec:
+      credentials:
+        valueMapping:
+          REDIS_HOST:
+            source: template
+            value: redis.{{.InstanceNamespace}}.svc.cluster.local
+          REDIS_PASSWORD:
+            key: auth
+            kind: Secret
+            name: instance-auth
+            source: objectRef
+          REDIS_PORT:
+            source: const
+            value: "6379"
+          REDIS_URL:
+            source: template
+            value: redis://{{.REDIS_USERNAME}}:{{.REDIS_PASSWORD}}@{{.REDIS_HOST}}:{{.REDIS_PORT}}
+          REDIS_USERNAME:
+            source: const
+            value: default
+      target:
+        name: instance-credentials
+  6: |
+    apiVersion: rituals.helmetica.io/v1
+    kind: Definition
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: restart
+    spec:
+      description: Restart the application
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+                - args:
+                    - rollout
+                    - restart
+                    - statefulset/redis-server
+                  command:
+                    - kubectl
+                  image: registry.k8s.io/kubectl:v1.34.1
+                  name: restart
+              restartPolicy: Never
+renders without backups:
+  1: |
+    apiVersion: seals.helmetica.io/v1
+    kind: Seal
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: networkconfig
+    spec:
+      allowAllNamespaces: false
+      allowedNamespaces: []
+  2: |
+    apiVersion: rituals.helmetica.io/v1
+    kind: Maintenance
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: default
+    spec:
+      suspend: false
+      window: ""
+  3: |
+    apiVersion: v1
+    data:
+      backup.sh: |
+        #!/bin/sh
+
+        REDIS_PASSWORD=$AUTH
+
+        redis_cmd() {
+          redis-cli -a "${REDIS_PASSWORD}" "$@"
+        }
+
+        rewrite_percentage=$(redis_cmd --raw CONFIG GET auto-aof-rewrite-percentage | tail -n 1) 1>&2
+
+        redis_cmd CONFIG SET auto-aof-rewrite-percentage 0 1>&2
+
+        redis_cmd SAVE 1>&2
+
+        until redis_cmd INFO persistence | grep aof_rewrite_in_progress:0 > /dev/null
+        do
+          sleep 1
+        done
+
+        tar -cf - /data
+
+        redis_cmd CONFIG SET auto-aof-rewrite-percentage "${rewrite_percentage}" 1>&2
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: backup
+  4: |
+    apiVersion: arcana.helmetica.io/v1
+    kind: Arcanum
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: credentials
+    spec:
+      credentials:
+        valueMapping:
+          REDIS_HOST:
+            source: template
+            value: redis.{{.InstanceNamespace}}.svc.cluster.local
+          REDIS_PASSWORD:
+            key: auth
+            kind: Secret
+            name: instance-auth
+            source: objectRef
+          REDIS_PORT:
+            source: const
+            value: "6379"
+          REDIS_URL:
+            source: template
+            value: redis://{{.REDIS_USERNAME}}:{{.REDIS_PASSWORD}}@{{.REDIS_HOST}}:{{.REDIS_PORT}}
+          REDIS_USERNAME:
+            source: const
+            value: default
+      target:
+        name: instance-credentials
+  5: |
+    apiVersion: rituals.helmetica.io/v1
+    kind: Definition
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.1
+      name: restart
+    spec:
+      description: Restart the application
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+                - args:
+                    - rollout
+                    - restart
+                    - statefulset/redis-server
+                  command:
+                    - kubectl
+                  image: registry.k8s.io/kubectl:v1.34.1
+                  name: restart
+              restartPolicy: Never

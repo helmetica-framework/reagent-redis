@@ -1,0 +1,3 @@
+# Three replicas, which is what turns on haproxy, sentinel and the write quorum.
+service:
+  replicas: 3

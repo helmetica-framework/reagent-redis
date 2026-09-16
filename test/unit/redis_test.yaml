@@ -1,221 +1,53 @@
 suite: redis reagent
-values:
-  - ./computed-values.yaml
 release:
   name: instance
 tests:
-  # What azoth renders is azoth's own business to test. These cover the wiring: the
-  # dependency, the include, and the values this chart carries for it.
-  - it: renders the framework's resources through azoth
+  # A snapshot pins every field of every rendered resource, so a change nobody
+  # meant to make shows up as a diff. Read the diff, then take it with
+  # `just gen-golden-all` once it is the change you wanted.
+  #
+  # Each scenario reads its own values first and the values its cel: expressions
+  # compute second, the same order the cluster resolves them in. `just values`
+  # writes the computed half; `just test` fails when it has drifted.
+  # auth-secret.yaml is deliberately absent from every list: it mints a random
+  # password when the cluster has no secret to read, so it renders differently
+  # every time and cannot be snapshotted.
+  - it: renders what it rendered last time
+    values:
+      - ./scenarios/default/values.yaml
+      - ./scenarios/default/computed.yaml
     templates:
       - azoth.yaml
+      - backup-script.yaml
+      - credentials.yaml
+      - rituals/restart.yaml
     asserts:
-      - hasDocuments:
-          count: 3
-      - isAPIVersion:
-          of: seals.helmetica.io/v1
-        documentSelector:
-          path: kind
-          value: Seal
-      - isAPIVersion:
-          of: rituals.helmetica.io/v1
-        documentSelector:
-          path: kind
-          value: Maintenance
-      - isAPIVersion:
-          of: backups.helmetica.io/v1
-        documentSelector:
-          path: kind
-          value: BackupPolicy
+      - matchSnapshot: {}
 
-  # Redis carries a dataset, so unlike the ferment scaffold this reagent asks for backups
-  # by default. Turning them off is a deliberate choice an instance has to make.
-  - it: drops the BackupPolicy when an instance turns backups off
+  # Three replicas turn on haproxy, sentinel and the write quorum, so the
+  # connection details consumers read change shape.
+  - it: renders in ha
+    values:
+      - ./scenarios/ha/values.yaml
+      - ./scenarios/ha/computed.yaml
     templates:
       - azoth.yaml
-    set:
-      backup.enabled: false
-    asserts:
-      # The seal and the maintenance window, without the policy.
-      - hasDocuments:
-          count: 2
-
-  - it: names the credentials secret after the release by default
-    templates:
-      - credentials.yaml
-    asserts:
-      - isKind:
-          of: Arcanum
-      - isAPIVersion:
-          of: arcana.helmetica.io/v1
-      - equal:
-          path: spec.target.name
-          value: instance-credentials
-
-  - it: lets the reagent name the credentials secret
-    templates:
-      - credentials.yaml
-    set:
-      credentials.targetSecret: redis-credentials
-    asserts:
-      - equal:
-          path: spec.target.name
-          value: redis-credentials
-
-  # Chrysopoeia releases the instance into a namespace of its own, so a consumer elsewhere
-  # in the cluster cannot reach it by the bare service name. By default there is no proxy,
-  # so the only endpoint to hand out is the headless service.
-  - it: hands out a fully qualified host under the keys consumers read
-    templates:
-      - credentials.yaml
-    asserts:
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_HOST.value
-          value: redis.{{.InstanceNamespace}}.svc.cluster.local
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_PORT.value
-          value: "6379"
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_USERNAME.value
-          value: default
-      # Plain `redis`, not `rediss`: there is no TLS on this service yet.
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_URL.value
-          value: redis://{{.REDIS_USERNAME}}:{{.REDIS_PASSWORD}}@{{.REDIS_HOST}}:{{.REDIS_PORT}}
-
-  # Three replicas means a proxy in front, because the headless record answers with every
-  # pod and a client writing to it hits a read only replica two times in three.
-  - it: points at the proxy once there is a master to pick
-    templates:
-      - credentials.yaml
-    set:
-      service.replicas: 3
-    asserts:
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_HOST.value
-          value: redis-haproxy.{{.InstanceNamespace}}.svc.cluster.local
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_PORT.value
-          value: "6379"
-
-  # A single replica is its own master for good, so there is no failover for a client to
-  # follow and nothing to ask sentinel about.
-  - it: hands out no sentinel details for a single instance
-    templates:
-      - credentials.yaml
-    asserts:
-      - notExists:
-          path: spec.credentials.valueMapping.REDIS_SENTINEL_HOST
-      - notExists:
-          path: spec.credentials.valueMapping.REDIS_SENTINEL_PORT
-      - notExists:
-          path: spec.credentials.valueMapping.REDIS_MASTER_GROUP_NAME
-
-  # The sentinel host stays the headless service even with the proxy in front of redis: a
-  # sentinel aware client wants to reach every sentinel, not whichever one a proxy picks.
-  - it: hands out the sentinel details once there is a failover to follow
-    templates:
-      - credentials.yaml
-    set:
-      service.replicas: 3
-    asserts:
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_SENTINEL_HOST.value
-          value: redis.{{.InstanceNamespace}}.svc.cluster.local
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_SENTINEL_PORT.value
-          value: "26379"
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_MASTER_GROUP_NAME.value
-          value: mymaster
-
-  # The one credential the chart mints itself, since arcana has no source that invents a
-  # value. Both ends of that handover have to name the same secret and key.
-  - it: reads the password back out of the secret the chart mints
-    templates:
-      - credentials.yaml
-    asserts:
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_PASSWORD.source
-          value: objectRef
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_PASSWORD.name
-          value: instance-auth
-      - equal:
-          path: spec.credentials.valueMapping.REDIS_PASSWORD.key
-          value: auth
-
-  # Rendered without a cluster to read back from, so the password is a fresh random string
-  # every run. Only its presence can be asserted, never its value.
-  - it: mints an auth secret for the release
-    templates:
-      - auth-secret.yaml
-    asserts:
-      - isKind:
-          of: Secret
-      - equal:
-          path: metadata.name
-          value: instance-auth
-      - exists:
-          path: data.auth
-
-  # k8up execs this in the redis container. It has to leave stdout to the tar, or the
-  # backup is the script's chatter instead of the dataset.
-  - it: ships the backup script k8up execs
-    templates:
       - backup-script.yaml
-    asserts:
-      - isKind:
-          of: ConfigMap
-      - equal:
-          path: metadata.name
-          value: backup
-      - matchRegex:
-          path: data["backup.sh"]
-          pattern: 'redis-cli -a "\$\{REDIS_PASSWORD\}"'
-      - matchRegex:
-          path: data["backup.sh"]
-          pattern: 'tar -cf - /data'
-
-  - it: renders a ritual definition per ritual
-    templates:
-      - rituals/restart.yaml
-    asserts:
-      - isKind:
-          of: Definition
-      - isAPIVersion:
-          of: rituals.helmetica.io/v1
-      - equal:
-          path: spec.jobTemplate.spec.template.spec.restartPolicy
-          value: Never
-
-  # redis-ha runs the pods as a statefulset named after the subchart's fullname, not as a
-  # deployment named after the release, which is what the ferment scaffold restarts.
-  - it: restarts the statefulset of the release
-    templates:
-      - rituals/restart.yaml
-    asserts:
-      - equal:
-          path: spec.jobTemplate.spec.template.spec.containers[0].args
-          value: ["rollout", "restart", "statefulset/redis-server"]
-
-  # This chart's own templates label themselves through azoth's helper rather than getting
-  # the labels handed to them.
-  - it: labels the resources it renders itself
-    templates:
       - credentials.yaml
-      - auth-secret.yaml
-      - backup-script.yaml
       - rituals/restart.yaml
     asserts:
-      - exists:
-          path: metadata.labels["helm.sh/chart"]
-      - equal:
-          path: metadata.labels["app.kubernetes.io/name"]
-          value: redis
-      - equal:
-          path: metadata.labels["app.kubernetes.io/instance"]
-          value: instance
-      - equal:
-          path: metadata.labels["app.kubernetes.io/managed-by"]
-          value: Helm
+      - matchSnapshot: {}
+
+  # The framework gates the BackupPolicy on backup.enabled, so it disappears
+  # from what azoth renders rather than rendering disabled.
+  - it: renders without backups
+    values:
+      - ./scenarios/backup-disabled/values.yaml
+      - ./scenarios/backup-disabled/computed.yaml
+    templates:
+      - azoth.yaml
+      - backup-script.yaml
+      - credentials.yaml
+      - rituals/restart.yaml
+    asserts:
+      - matchSnapshot: {}
