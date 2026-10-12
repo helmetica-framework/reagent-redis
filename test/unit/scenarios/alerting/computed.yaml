@@ -2,6 +2,13 @@
 #
 # Regenerate with that command. Add --check to fail on a stale file instead of writing it.
 
+network:
+  exposures:
+    - backend:
+        port: 6379
+        service: redis
+      name: redis
+      protocol: TCP
 redis:
   haproxy:
     enabled: false
