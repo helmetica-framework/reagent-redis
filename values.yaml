@@ -85,6 +85,14 @@ credentials:
   # Defaults to releaseName-credentials.
   targetSecret: ""
 
+alerting:
+  serviceOperator:
+    '#emailAddresses':
+      items:
+        '#':
+          type: string
+    emailAddresses: []
+
 service:
   # The size of the instance. The number is gibibytes of memory the pod may use, and cpu
   # follows it at 250 millicores per gibibyte. Requests are set equal to the limits, so the
@@ -185,3 +193,14 @@ redis:
     extraVolumeMounts:
       - name: backup-script
         mountPath: /scripts
+
+  prometheusRule:
+    enabled: true
+    rules:
+      - alert: TestAlert
+        expr: |
+          vector(1)
+        for: 0s
+        labels:
+          severity: info
+          audience: service_operator
