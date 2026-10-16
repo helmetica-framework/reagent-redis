@@ -1,0 +1,3 @@
+[submodule "dependencies/dandy-charts"]
+	path = dependencies/dandy-charts
+	url = git@github.com:Kidswiss/dandy-charts.git
