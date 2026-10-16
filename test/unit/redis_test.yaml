@@ -21,6 +21,7 @@ tests:
       - backup-script.yaml
       - credentials.yaml
       - rituals/restart.yaml
+      - alertmanagerconfig.yaml
     asserts:
       - matchSnapshot: {}
 
@@ -49,5 +50,14 @@ tests:
       - backup-script.yaml
       - credentials.yaml
       - rituals/restart.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: renders valid alerting configuration
+    values:
+      - ./scenarios/alerting/values.yaml
+      - ./scenarios/alerting/computed.yaml
+    templates:
+      - alertmanagerconfig.yaml
     asserts:
       - matchSnapshot: {}
