@@ -86,6 +86,7 @@ credentials:
   targetSecret: ""
 
 alerting:
+  enabled: true
   serviceOperator:
     '#emailAddresses':
       items:

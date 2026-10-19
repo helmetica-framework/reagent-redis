@@ -7,7 +7,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -20,7 +20,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: default
     spec:
       suspend: false
@@ -33,13 +33,53 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: instance
     spec:
       mode: Schedule
       schedule:
         backup: 2 2 * * *
   4: |
+    apiVersion: monitoring.coreos.com/v1alpha1
+    kind: AlertmanagerConfig
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.6
+      name: email-alerting
+    spec:
+      receivers:
+        - name: "null"
+        - name: service_operator
+        - name: service_user
+        - name: service_maintainer
+      route:
+        groupBy:
+          - alertname
+          - audience
+        groupInterval: 5s
+        groupWait: 0s
+        receiver: "null"
+        repeatInterval: 4h
+        routes:
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_operator
+            receiver: service_operator
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_user
+            receiver: service_user
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_maintainer
+            receiver: service_maintainer
+  5: |
     apiVersion: v1
     data:
       backup.sh: |
@@ -71,9 +111,9 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: backup
-  5: |
+  6: |
     apiVersion: arcana.helmetica.io/v1
     kind: Arcanum
     metadata:
@@ -81,7 +121,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: credentials
     spec:
       credentials:
@@ -114,7 +154,7 @@ renders in ha:
             value: default
       target:
         name: instance-credentials
-  6: |
+  7: |
     apiVersion: rituals.helmetica.io/v1
     kind: Definition
     metadata:
@@ -122,7 +162,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: restart
     spec:
       description: Restart the application
@@ -140,58 +180,8 @@ renders in ha:
                   image: registry.k8s.io/kubectl:v1.34.1
                   name: restart
               restartPolicy: Never
-renders valid alerting configuration:
-  1: |
-    apiVersion: monitoring.coreos.com/v1alpha1
-    kind: AlertmanagerConfig
-    metadata:
-      name: instance-alerting
-    spec:
-      receivers:
-        - name: "null"
-        - emailConfigs:
-            - to: paul.muster@example.com
-            - to: rudolf.rüdig@example.com
-          name: service_operator
-      route:
-        groupBy:
-          - alertname
-          - audience
-        groupInterval: 5s
-        groupWait: 0s
-        receiver: "null"
-        repeatInterval: 4h
-        routes:
-          - matchers:
-              - matchType: =
-                name: audience
-                value: service_operator
-            receiver: service_operator
 renders what it rendered last time:
   1: |
-    apiVersion: monitoring.coreos.com/v1alpha1
-    kind: AlertmanagerConfig
-    metadata:
-      name: instance-alerting
-    spec:
-      receivers:
-        - name: "null"
-        - name: service_operator
-      route:
-        groupBy:
-          - alertname
-          - audience
-        groupInterval: 5s
-        groupWait: 0s
-        receiver: "null"
-        repeatInterval: 4h
-        routes:
-          - matchers:
-              - matchType: =
-                name: audience
-                value: service_operator
-            receiver: service_operator
-  2: |
     apiVersion: seals.helmetica.io/v1
     kind: Seal
     metadata:
@@ -199,12 +189,12 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: networkconfig
     spec:
       allowAllNamespaces: false
       allowedNamespaces: []
-  3: |
+  2: |
     apiVersion: rituals.helmetica.io/v1
     kind: Maintenance
     metadata:
@@ -212,12 +202,12 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: default
     spec:
       suspend: false
       window: ""
-  4: |
+  3: |
     apiVersion: backups.helmetica.io/v1
     kind: BackupPolicy
     metadata:
@@ -225,12 +215,52 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: instance
     spec:
       mode: Schedule
       schedule:
         backup: 2 2 * * *
+  4: |
+    apiVersion: monitoring.coreos.com/v1alpha1
+    kind: AlertmanagerConfig
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.6
+      name: email-alerting
+    spec:
+      receivers:
+        - name: "null"
+        - name: service_operator
+        - name: service_user
+        - name: service_maintainer
+      route:
+        groupBy:
+          - alertname
+          - audience
+        groupInterval: 5s
+        groupWait: 0s
+        receiver: "null"
+        repeatInterval: 4h
+        routes:
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_operator
+            receiver: service_operator
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_user
+            receiver: service_user
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_maintainer
+            receiver: service_maintainer
   5: |
     apiVersion: v1
     data:
@@ -263,7 +293,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: backup
   6: |
     apiVersion: arcana.helmetica.io/v1
@@ -273,7 +303,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: credentials
     spec:
       credentials:
@@ -305,7 +335,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: restart
     spec:
       description: Restart the application
@@ -332,7 +362,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -345,12 +375,52 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: default
     spec:
       suspend: false
       window: ""
   3: |
+    apiVersion: monitoring.coreos.com/v1alpha1
+    kind: AlertmanagerConfig
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.6
+      name: email-alerting
+    spec:
+      receivers:
+        - name: "null"
+        - name: service_operator
+        - name: service_user
+        - name: service_maintainer
+      route:
+        groupBy:
+          - alertname
+          - audience
+        groupInterval: 5s
+        groupWait: 0s
+        receiver: "null"
+        repeatInterval: 4h
+        routes:
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_operator
+            receiver: service_operator
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_user
+            receiver: service_user
+          - matchers:
+              - matchType: =
+                name: audience
+                value: service_maintainer
+            receiver: service_maintainer
+  4: |
     apiVersion: v1
     data:
       backup.sh: |
@@ -382,9 +452,9 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: backup
-  4: |
+  5: |
     apiVersion: arcana.helmetica.io/v1
     kind: Arcanum
     metadata:
@@ -392,7 +462,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: credentials
     spec:
       credentials:
@@ -416,7 +486,7 @@ renders without backups:
             value: default
       target:
         name: instance-credentials
-  5: |
+  6: |
     apiVersion: rituals.helmetica.io/v1
     kind: Definition
     metadata:
@@ -424,7 +494,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.5
+        helm.sh/chart: redis-0.0.6
       name: restart
     spec:
       description: Restart the application
