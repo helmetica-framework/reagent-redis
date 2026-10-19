@@ -3,7 +3,7 @@ dependencies:
 # The framework's shared templates. templates/azoth.yaml is what renders them.
 - name: azoth
   repository: oci://ghcr.io/helmetica-framework
-  version: 0.0.4
+  version: 0.0.5
 - alias: redis
   name: redis-ha
   repository: file://dependencies/dandy-charts/charts/redis-ha
