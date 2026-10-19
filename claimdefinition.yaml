@@ -1,0 +1,53 @@
+apiVersion: v1
+items:
+- apiVersion: source.toolkit.fluxcd.io/v1
+  kind: OCIRepository
+  metadata:
+    name: helmetica-redis-v0
+    namespace: syn-helmetica-framework
+  spec:
+    interval: 1h
+    provider: generic
+    ref:
+      semver: 0.0.x
+    timeout: 60s
+    url: oci://ghcr.io/helmetica-framework/redis
+- apiVersion: image.toolkit.fluxcd.io/v1
+  kind: ImageRepository
+  metadata:
+    name: helmetica-redis-v0
+    namespace: syn-helmetica-framework
+  spec:
+    exclusionList:
+    - ^.*\.sig$
+    - ^sha256-.+$
+    image: ghcr.io/helmetica-framework/redis
+    interval: 12h
+    provider: generic
+- apiVersion: helmetica.io/v1
+  kind: CustomResourceDefinitionSource
+  metadata:
+    name: v0.helmeticaredis
+    namespace: syn-helmetica-framework
+  spec:
+    crdNames:
+      kind: HelmeticaRedis
+      plural: helmeticaredis
+    reference:
+      apiVersion: source.toolkit.fluxcd.io/v1
+      kind: OCIRepository
+      name: helmetica-redis-v0
+    versionDiscovery:
+      reference:
+        apiVersion: image.toolkit.fluxcd.io/v1
+        kind: ImageRepository
+        name: helmetica-redis-v0
+kind: List
+metadata:
+  resourceVersion: ""
+---
+apiVersion: v0.helmeticaredis.helmetica-bundles.io/bundle
+kind: HelmeticaRedis
+metadata:
+  name: example
+spec: {}
