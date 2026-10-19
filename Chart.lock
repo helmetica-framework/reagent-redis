@@ -1,9 +1,9 @@
 dependencies:
 - name: azoth
   repository: oci://ghcr.io/helmetica-framework
-  version: 0.0.3
+  version: 0.0.4
 - name: redis-ha
   repository: file://dependencies/dandy-charts/charts/redis-ha
   version: 4.39.0
-digest: sha256:1f5d8ff4bdb0c29a418307f6b78ee1b568ed53e87420cedbceb661e71d48af85
-generated: "2026-10-19T11:13:22.524563+02:00"
+digest: sha256:568bcbda481df6f6e9f8bfb513b7ad3ec72431efec87df183113243f73cf7a13
+generated: "2026-10-19T15:34:17.900295+02:00"
