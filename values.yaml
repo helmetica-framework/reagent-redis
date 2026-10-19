@@ -123,6 +123,11 @@ service:
         type: string
   config: {}
 
+# Debug holds methods to debug the Helmetica bundle.
+debug:
+  # heartbeatAlert adds an alert always evaluating to be firing.
+  heartbeatAlert: false
+
 '#redis':
   export: false
 redis:
@@ -148,7 +153,7 @@ redis:
   exporter:
     enabled: true
     serviceMonitor:
-      enabled: false
+      enabled: true
 
   persistentVolume:
     size: "cel: values.service.storage"
@@ -193,14 +198,3 @@ redis:
     extraVolumeMounts:
       - name: backup-script
         mountPath: /scripts
-
-  prometheusRule:
-    enabled: true
-    rules:
-      - alert: TestAlert
-        expr: |
-          vector(1)
-        for: 0s
-        labels:
-          severity: info
-          audience: service_operator

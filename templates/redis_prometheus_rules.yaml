@@ -1,0 +1,102 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ template "redis-ha.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+{{ include "labels.standard" . | indent 4 }}
+spec:
+  groups:
+    - name: redis-rules
+      rules:
+        - alert: RedisDown
+          annotations:
+            message: Redis instance {{ "{{ $labels.pod }}" }} is down
+            runbook_url: https://kb.vshn.ch/app-catalog/csp/spks/runbooks/redis/RedisDown.html
+          expr: |
+            redis_up{service="redis-metrics"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            audience: service_operator
+        - alert: RedisClusterDown
+          annotations:
+            message: Redis cluster {{ "{{ $labels.instance }}" }} is down
+            runbook_url: https://kb.vshn.ch/app-catalog/csp/spks/runbooks/redis/RedisClusterDown.html
+          expr: |
+            (
+              sum by(namespace) (redis_up{service="redis"}) < 1
+              or
+              sum by(namespace) (kube_statefulset_status_replicas_ready{statefulset="redis-server"}) < 1
+            )
+            and on(namespace)
+            kube_statefulset_replicas{statefulset="redis-server"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            audience: service_operator
+        {{- if (gt .Values.service.replicas 1.0) }}
+        - alert: RedisMasterCountIssue
+          annotations:
+            message: Redis cluster does not have exactly one master node.
+            runbook_url: https://kb.vshn.ch/app-catalog/csp/spks/runbooks/redis/RedisMasterMissing.html
+          expr: |
+            sum by (namespace) (redis_instance_info{role="master"} != 1)
+          for: 5m
+          labels:
+            severity: critical
+            audience: service_operator
+        - alert: RedisDisconnectedSlaves
+          annotations:
+            message: Redis not replicating for all slaves. Consider reviewing the
+              redis replication status.
+            runbook_url: https://kb.vshn.ch/app-catalog/csp/spks/runbooks/redis/RedisDisconnectedSlaves.html
+          expr: |
+            count without (instance, job) (redis_connected_slaves) - sum without (instance, job) (redis_connected_slaves) - 1 > 1
+          for: 5m
+          labels:
+            severity: critical
+            audience: service_operator
+        - alert: RedisReplicationBroken
+          annotations:
+            message: Redis instance {{ "{{ $labels.pod }}" }} lost a slave.
+            runbook_url: https://kb.vshn.ch/app-catalog/csp/spks/runbooks/redis/RedisReplicationBroken.html
+          expr: |
+            delta(redis_connected_slaves[1m]) < 0
+          for: 5m
+          labels:
+            severity: critical
+            audience: service_operator
+        - alert: RedisClusterFlapping
+          annotations:
+            message: Changes have been detected in Redis replica connection. This
+              can occur when replica nodes lose connection to the master and reconnect
+              (a.k.a flapping).
+            runbook_url: https://kb.vshn.ch/app-catalog/csp/spks/runbooks/redis/RedisClusterFlapping.html
+          expr: |
+            changes(redis_connected_slaves[15m]) > 2
+          for: 1h
+          labels:
+            severity: critical
+            audience: service_operator
+        - alert: RedisMasterLinkDown
+          annotations:
+            message: Redis instance {{ "{{ $labels.pod }}" }} had no link to the master for
+              the last 5 minutes.
+            runbook_url: https://kb.vshn.ch/app-catalog/csp/spks/runbooks/redis/RedisMasterLinkDown.html
+          expr: |
+            max without(instance, master_host) (redis_master_link_up) != 1
+          for: 5m
+          labels:
+            severity: warning
+            audience: service_operator
+        {{- end }}
+        {{- if .Values.debug.heartbeatAlert }}
+        - alert: HeartbeatAlert
+          expr: |
+            vector(1)
+          for: 0s
+          labels:
+            severity: info
+            audience: service_operator
+        {{- end }}
