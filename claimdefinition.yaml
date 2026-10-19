@@ -22,7 +22,7 @@ items:
     - ^.*\.sig$
     - ^sha256-.+$
     image: ghcr.io/helmetica-framework/redis
-    interval: 12h
+    interval: 1h
     provider: generic
 - apiVersion: helmetica.io/v1
   kind: CustomResourceDefinitionSource
