@@ -1,6 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: redis reagent
 release:
   name: instance
+# Drops the auth secret that is randomly generated on each template run and thus can't be snapshotted.
+postRenderer:
+  cmd: sed
+  args:
+    - -E
+    - 's/^  auth: .+/  auth: DROPPED/g'
 tests:
   # A snapshot pins every field of every rendered resource, so a change nobody
   # meant to make shows up as a diff. Read the diff, then take it with
@@ -9,18 +16,10 @@ tests:
   # Each scenario reads its own values first and the values its cel: expressions
   # compute second, the same order the cluster resolves them in. `just values`
   # writes the computed half; `just test` fails when it has drifted.
-  # auth-secret.yaml is deliberately absent from every list: it mints a random
-  # password when the cluster has no secret to read, so it renders differently
-  # every time and cannot be snapshotted.
   - it: renders what it rendered last time
     values:
       - ./scenarios/default/values.yaml
       - ./scenarios/default/computed.yaml
-    templates:
-      - azoth.yaml
-      - backup-script.yaml
-      - credentials.yaml
-      - rituals/restart.yaml
     asserts:
       - matchSnapshot: {}
 
@@ -30,11 +29,6 @@ tests:
     values:
       - ./scenarios/ha/values.yaml
       - ./scenarios/ha/computed.yaml
-    templates:
-      - azoth.yaml
-      - backup-script.yaml
-      - credentials.yaml
-      - rituals/restart.yaml
     asserts:
       - matchSnapshot: {}
 
@@ -44,10 +38,5 @@ tests:
     values:
       - ./scenarios/backup-disabled/values.yaml
       - ./scenarios/backup-disabled/computed.yaml
-    templates:
-      - azoth.yaml
-      - backup-script.yaml
-      - credentials.yaml
-      - rituals/restart.yaml
     asserts:
       - matchSnapshot: {}
