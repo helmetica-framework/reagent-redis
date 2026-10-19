@@ -7,7 +7,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -20,7 +20,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: default
     spec:
       suspend: false
@@ -33,7 +33,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: instance
     spec:
       mode: Schedule
@@ -47,7 +47,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: email-alerting
     spec:
       receivers:
@@ -111,7 +111,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: backup
   6: |
     apiVersion: arcana.helmetica.io/v1
@@ -121,7 +121,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: credentials
     spec:
       credentials:
@@ -162,7 +162,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: restart
     spec:
       description: Restart the application
@@ -189,7 +189,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -202,7 +202,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: default
     spec:
       suspend: false
@@ -215,7 +215,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: instance
     spec:
       mode: Schedule
@@ -229,7 +229,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: email-alerting
     spec:
       receivers:
@@ -293,7 +293,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: backup
   6: |
     apiVersion: arcana.helmetica.io/v1
@@ -303,7 +303,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: credentials
     spec:
       credentials:
@@ -335,7 +335,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: restart
     spec:
       description: Restart the application
@@ -362,7 +362,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -375,7 +375,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: default
     spec:
       suspend: false
@@ -388,7 +388,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: email-alerting
     spec:
       receivers:
@@ -452,7 +452,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: backup
   5: |
     apiVersion: arcana.helmetica.io/v1
@@ -462,7 +462,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: credentials
     spec:
       credentials:
@@ -494,7 +494,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.6
+        helm.sh/chart: redis-0.0.7
       name: restart
     spec:
       description: Restart the application
