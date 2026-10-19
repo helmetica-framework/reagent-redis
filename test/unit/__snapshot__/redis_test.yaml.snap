@@ -142,7 +142,7 @@ renders in ha:
               restartPolicy: Never
 renders valid alerting configuration:
   1: |
-    apiVersion: monitoring.coreos.com/v1beta1
+    apiVersion: monitoring.coreos.com/v1alpha1
     kind: AlertmanagerConfig
     metadata:
       name: instance-alerting
@@ -169,7 +169,7 @@ renders valid alerting configuration:
             receiver: service_operator
 renders what it rendered last time:
   1: |
-    apiVersion: monitoring.coreos.com/v1beta1
+    apiVersion: monitoring.coreos.com/v1alpha1
     kind: AlertmanagerConfig
     metadata:
       name: instance-alerting
