@@ -1,0 +1,5 @@
+# Exposed in ha, which is what points the exposure at the proxy.
+network:
+  expose: true
+service:
+  replicas: 3

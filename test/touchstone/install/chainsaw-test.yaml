@@ -188,6 +188,12 @@ spec:
                 namespace: ($instanceNs)
 
       catch:
+        # Chrysopoeia releases into its own namespace, so describe cannot find it by itself.
+        - script:
+            content: kubectl -n $INSTANCE_NS describe helmrelease instance
+            env:
+              - name: INSTANCE_NS
+                value: ($instanceNs)
         - describe:
             apiVersion: helmetica.io/v1
             kind: CustomResourceDefinitionSource

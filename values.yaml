@@ -58,6 +58,18 @@ network:
   # Allow access from all namespaces.
   allowAllNamespaces: false
 
+  # Make this service reachable from outside the cluster. The address and port are
+  # reported in the REDIS_EXTERNAL_* credentials. Sentinel is not exposed.
+  expose: false
+
+  # What `expose` makes reachable. Not settable on a claim. With three replicas the
+  # backend is the proxy, for the same reason REDIS_HOST is (templates/credentials.yaml).
+  '#exposures':
+    export: false
+  exposures: >-
+    cel: [{'name': 'redis', 'protocol': 'TCP', 'backend': {
+    'service': values.service.replicas > 1 ? 'redis-haproxy' : 'redis', 'port': 6379}}]
+
 # When this service's maintenance runs. The adept reads these off the instance.
 maintenance:
   # Whether this service takes part in maintenance at all. Not settable on a claim.

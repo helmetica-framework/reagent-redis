@@ -51,9 +51,16 @@ helx-redis-...
 | `backup.enabled` | `true` | Whether the service is backed up at all. |
 | `backup.mode` | `Schedule` | `Schedule` drives k8up over the volumes. `BucketOnly` provisions the bucket and stops there. |
 | `backup.schedule.backup` | nightly | Cron expression. Empty gets a time between 22:00 and 06:00, hashed from the instance so it stays put and no two instances collide. |
+| `backup.schedule.prune` | controller default | Cron expression. Weekly by default. |
+| `backup.schedule.check` | controller default | Cron expression. Weekly by default. |
+| `backup.bucketClassName` | controller default | The COSI bucket class. |
+| `backup.bucketAccessClassName` | controller default | The COSI bucket access class. |
 | `backup.retention.*` | controller default | How many backups survive a prune. |
 | `network.allowedNamespaces` | `[]` | Namespaces allowed in on top of the claim's own, which is always allowed. |
 | `network.allowAllNamespaces` | `false` | Open it to the whole cluster. |
+| `network.expose` | `false` | Make Redis reachable from outside the cluster. The proxy with three replicas, otherwise the headless service. The address goes into the `REDIS_EXTERNAL_*` credentials. Sentinel is not exposed, see [Topology](#topology). |
+| `maintenance.window` | operator default | The MaintenanceWindow this instance starts in. |
+| `maintenance.suspend` | `false` | Keep the schedule but do not run maintenance. |
 | `credentials.targetSecret` | `<claim>-credentials` | Where the connection details are written. |
 
 Everything else about the subchart is the reagent's decision and is not in the API. See
@@ -90,6 +97,9 @@ envFrom:
 | `REDIS_USERNAME` | `default`. Redis 6 and later map the password onto the built-in ACL user. |
 | `REDIS_PASSWORD` | Authentication password. |
 | `REDIS_URL` | `redis://default:<password>@<host>:6379`. No TLS yet, so the scheme is `redis` and not `rediss`. |
+| `REDIS_EXTERNAL_HOST` | With `network.expose` only. The address from outside the cluster. |
+| `REDIS_EXTERNAL_PORT` | With `network.expose` only. Picked by the platform from its port range. |
+| `REDIS_EXTERNAL_URL` | With `network.expose` only. `redis://default:<password>@<external host>:<external port>` |
 | `REDIS_SENTINEL_HOST` | Three replicas only. The headless service, so a client sees every sentinel rather than one of them. |
 | `REDIS_SENTINEL_PORT` | Three replicas only. `26379` |
 | `REDIS_MASTER_GROUP_NAME` | Three replicas only. `mymaster` |
@@ -105,6 +115,9 @@ every pod, and a client that dials `REDIS_URL` without the proxy would land on a
 replica two writes in three and get `READONLY`. `REDIS_HOST` therefore points at the proxy,
 which always forwards to the current master. A Sentinel-aware client can ignore it and use
 the `REDIS_SENTINEL_*` credentials instead.
+
+**Limitation:** Sentinel is not exposed. With `network.expose`, a client outside the
+cluster only reaches the proxy, through the `REDIS_EXTERNAL_*` credentials.
 
 ## Backups
 
