@@ -41,6 +41,17 @@ backup:
     keepMonthly: 0
     keepYearly: 0
 
+# Collect billing relevant values from the claim.
+'#billing':
+  epxort: false
+billing:
+  # Whether the framework should bill this service
+  enabled: true
+  metadata:
+    plan: "cel: values.service.plan"
+  items:
+    storage: "cel: values.service.storage"
+
 network:
   # Whether the framework seals this service off at all. Not settable on a claim.
   '#enabled':
