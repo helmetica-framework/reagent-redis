@@ -129,7 +129,7 @@ push: _guard-unlinked build
 
 # Read the reagent's purity: end-to-end test against a running athanor cluster (just ignite).
 touchstone:
-    {{ CHAINSAW_CMD }} test --config test/touchstone/chainsaw-config.yaml test/touchstone
+    {{ CHAINSAW_CMD }} test --config test/touchstone/chainsaw-config.yaml test/touchstone --quiet
 
 # Push main, tag the current commit and push the tag to trigger the release
 release: _guard-unlinked
