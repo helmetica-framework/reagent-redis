@@ -209,7 +209,7 @@ redis:
   exporter:
     enabled: true
     image: quay.io/oliver006/redis_exporter
-    tag: v1.86.0@sha256:2e9795be900db073e9475fdb9c5124db309b07a3e4e75a1770705cb03be1a1c8
+    tag: v1.96.0@sha256:3d57b9eb142a62ffc600063606a41cd471cd53d81bed10be5b56b3a8918f2c26
     serviceMonitor:
       enabled: true
 
