@@ -3,7 +3,7 @@ dependencies:
   repository: oci://ghcr.io/helmetica-framework
   version: 0.0.6
 - name: redis-ha
-  repository: file://dependencies/dandy-charts/charts/redis-ha
-  version: 4.39.0
-digest: sha256:9ad01b9bd34d07adcc64d466facb67fbc376bee1962a5100778cc2aa41e7334f
-generated: "2026-10-30T08:56:30.339449139Z"
+  repository: oci://ghcr.io/helmetica-framework
+  version: 4.39.1
+digest: sha256:283f414f3476ad145f64f4278ac6c494d3d13b170fcf09515ef505e5ee39bcd4
+generated: "2026-10-30T12:15:24.798764087Z"

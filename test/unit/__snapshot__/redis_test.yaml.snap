@@ -260,7 +260,7 @@ renders in ha:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-announce-0
@@ -292,7 +292,7 @@ renders in ha:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-announce-1
@@ -324,7 +324,7 @@ renders in ha:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-announce-2
@@ -1167,7 +1167,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-configmap
@@ -1241,7 +1241,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-health-configmap
@@ -1252,7 +1252,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-pdb
@@ -1269,7 +1269,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -1293,7 +1293,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -1312,7 +1312,7 @@ renders in ha:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         exporter: enabled
         heritage: Helm
         release: instance
@@ -1343,7 +1343,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -1357,7 +1357,7 @@ renders in ha:
       annotations: {}
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         redis: replica
         release: instance
@@ -1711,7 +1711,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         component: haproxy
         heritage: Helm
         release: instance
@@ -1833,7 +1833,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         component: haproxy
         heritage: Helm
         release: instance
@@ -1858,7 +1858,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         component: haproxy
         heritage: Helm
         release: instance
@@ -1878,7 +1878,7 @@ renders in ha:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         component: haproxy
         heritage: Helm
         release: instance
@@ -1900,7 +1900,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-haproxy
@@ -1913,7 +1913,7 @@ renders in ha:
         helm.sh/hook: test-success
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-configmap-test
@@ -1954,7 +1954,7 @@ renders in ha:
         helm.sh/hook: test-success
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-service-test
@@ -2324,7 +2324,7 @@ renders what it rendered last time:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-announce-0
@@ -3069,7 +3069,7 @@ renders what it rendered last time:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-configmap
@@ -3143,7 +3143,7 @@ renders what it rendered last time:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-health-configmap
@@ -3154,7 +3154,7 @@ renders what it rendered last time:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-pdb
@@ -3171,7 +3171,7 @@ renders what it rendered last time:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -3195,7 +3195,7 @@ renders what it rendered last time:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -3214,7 +3214,7 @@ renders what it rendered last time:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         exporter: enabled
         heritage: Helm
         release: instance
@@ -3245,7 +3245,7 @@ renders what it rendered last time:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -3259,7 +3259,7 @@ renders what it rendered last time:
       annotations: {}
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         redis: replica
         release: instance
@@ -3607,7 +3607,7 @@ renders what it rendered last time:
         helm.sh/hook: test-success
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-configmap-test
@@ -3925,7 +3925,7 @@ renders without backups:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-announce-0
@@ -4670,7 +4670,7 @@ renders without backups:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-configmap
@@ -4744,7 +4744,7 @@ renders without backups:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-health-configmap
@@ -4755,7 +4755,7 @@ renders without backups:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-pdb
@@ -4772,7 +4772,7 @@ renders without backups:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -4796,7 +4796,7 @@ renders without backups:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -4815,7 +4815,7 @@ renders without backups:
       annotations: null
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         exporter: enabled
         heritage: Helm
         release: instance
@@ -4846,7 +4846,7 @@ renders without backups:
     metadata:
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis
@@ -4860,7 +4860,7 @@ renders without backups:
       annotations: {}
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         redis: replica
         release: instance
@@ -5208,7 +5208,7 @@ renders without backups:
         helm.sh/hook: test-success
       labels:
         app: redis
-        chart: redis-4.39.0
+        chart: redis-4.39.1
         heritage: Helm
         release: instance
       name: redis-configmap-test
