@@ -1,0 +1,3 @@
+# The oldest version on offer.
+service:
+  version: "7.2"
