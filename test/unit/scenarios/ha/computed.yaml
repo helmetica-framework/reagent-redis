@@ -2,6 +2,11 @@
 #
 # Regenerate with that command. Add --check to fail on a stale file instead of writing it.
 
+billing:
+  items:
+    storage: 10Gi
+  metadata:
+    plan: standard-1
 network:
   exposures:
     - backend:

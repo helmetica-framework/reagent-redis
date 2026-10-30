@@ -189,11 +189,18 @@ spec:
 
       catch:
         # Chrysopoeia releases into its own namespace, so describe cannot find it by itself.
+        # Bindings from the try block are missing if it failed early, so look everything up again.
         - script:
-            content: kubectl -n $INSTANCE_NS describe helmrelease instance
-            env:
-              - name: INSTANCE_NS
-                value: ($instanceNs)
+            content: |
+              chart=$(awk '/^name:/{print $2}' ../../../Chart.yaml)
+              major=$(awk '/^version:/{split($2, v, "."); print v[1]}' ../../../Chart.yaml)
+              id=$({ cat ../../../values.yaml; echo "$NAMESPACE"; } | sha256sum | cut -c1-8)
+              crd=$(kubectl get crd \
+                -o jsonpath="{.items[?(@.spec.group=='v$major-$id.$chart.helmetica-bundles.io')].metadata.name}")
+              [ -n "$crd" ] || { echo "no CRD yet"; exit 0; }
+              ns=$(kubectl -n "$NAMESPACE" get "$crd" instance -o jsonpath='{.status.instanceNamespace}' 2>/dev/null)
+              [ -n "$ns" ] || { echo "no instance namespace yet"; exit 0; }
+              kubectl -n "$ns" describe helmrelease instance
         - describe:
             apiVersion: helmetica.io/v1
             kind: CustomResourceDefinitionSource
@@ -208,18 +215,13 @@ spec:
         - describe:
             apiVersion: backups.helmetica.io/v1
             kind: BackupPolicy
-        - podLogs:
-            namespace: hel-chrysopoeia
-            selector: control-plane=controller-manager
-            tail: 50
-        - podLogs:
-            namespace: hel-ampulla
-            selector: control-plane=controller-manager
-            tail: 50
       cleanup:
         # Chrysopoeia owns the generated CRD, chainsaw does not clean it up.
         - script:
-            content: kubectl delete crd $CRD --ignore-not-found
-            env:
-              - name: CRD
-                value: ($crd)
+            content: |
+              chart=$(awk '/^name:/{print $2}' ../../../Chart.yaml)
+              major=$(awk '/^version:/{split($2, v, "."); print v[1]}' ../../../Chart.yaml)
+              id=$({ cat ../../../values.yaml; echo "$NAMESPACE"; } | sha256sum | cut -c1-8)
+              crd=$(kubectl get crd \
+                -o jsonpath="{.items[?(@.spec.group=='v$major-$id.$chart.helmetica-bundles.io')].metadata.name}")
+              [ -z "$crd" ] || kubectl delete crd "$crd" --ignore-not-found

@@ -105,6 +105,22 @@ renders exposed:
       policyTypes:
         - Ingress
   6: |
+    apiVersion: libra.helmetica.io/v1
+    kind: BillingData
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.9
+      name: billing
+    spec:
+      items:
+        - name: storage
+          value: 10Gi
+      metadata:
+        plan: standard-1
+  7: |
     apiVersion: v1
     data:
       backup.sh: |
@@ -138,7 +154,7 @@ renders exposed:
         app.kubernetes.io/name: redis
         helm.sh/chart: redis-0.0.9
       name: backup
-  7: |
+  8: |
     apiVersion: arcana.helmetica.io/v1
     kind: Arcanum
     metadata:
@@ -194,7 +210,7 @@ renders exposed:
             value: default
       target:
         name: instance-credentials
-  8: |
+  9: |
     apiVersion: rituals.helmetica.io/v1
     kind: Definition
     metadata:
@@ -2077,6 +2093,22 @@ renders in ha:
       policyTypes:
         - Ingress
   26: |
+    apiVersion: libra.helmetica.io/v1
+    kind: BillingData
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.9
+      name: billing
+    spec:
+      items:
+        - name: storage
+          value: 10Gi
+      metadata:
+        plan: standard-1
+  27: |
     apiVersion: v1
     data:
       backup.sh: |
@@ -2110,7 +2142,7 @@ renders in ha:
         app.kubernetes.io/name: redis
         helm.sh/chart: redis-0.0.9
       name: backup
-  27: |
+  28: |
     apiVersion: arcana.helmetica.io/v1
     kind: Arcanum
     metadata:
@@ -2151,7 +2183,7 @@ renders in ha:
             value: default
       target:
         name: instance-credentials
-  28: |
+  29: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
@@ -2242,7 +2274,7 @@ renders in ha:
               labels:
                 audience: service_operator
                 severity: warning
-  29: |
+  30: |
     apiVersion: rituals.helmetica.io/v1
     kind: Definition
     metadata:
@@ -3721,6 +3753,22 @@ renders what it rendered last time:
       policyTypes:
         - Ingress
   18: |
+    apiVersion: libra.helmetica.io/v1
+    kind: BillingData
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.9
+      name: billing
+    spec:
+      items:
+        - name: storage
+          value: 10Gi
+      metadata:
+        plan: standard-1
+  19: |
     apiVersion: v1
     data:
       backup.sh: |
@@ -3754,7 +3802,7 @@ renders what it rendered last time:
         app.kubernetes.io/name: redis
         helm.sh/chart: redis-0.0.9
       name: backup
-  19: |
+  20: |
     apiVersion: arcana.helmetica.io/v1
     kind: Arcanum
     metadata:
@@ -3786,7 +3834,7 @@ renders what it rendered last time:
             value: default
       target:
         name: instance-credentials
-  20: |
+  21: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
@@ -3827,7 +3875,7 @@ renders what it rendered last time:
               labels:
                 audience: service_operator
                 severity: critical
-  21: |
+  22: |
     apiVersion: rituals.helmetica.io/v1
     kind: Definition
     metadata:
@@ -5292,6 +5340,22 @@ renders without backups:
       policyTypes:
         - Ingress
   17: |
+    apiVersion: libra.helmetica.io/v1
+    kind: BillingData
+    metadata:
+      labels:
+        app.kubernetes.io/instance: instance
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-0.0.9
+      name: billing
+    spec:
+      items:
+        - name: storage
+          value: 10Gi
+      metadata:
+        plan: standard-1
+  18: |
     apiVersion: v1
     data:
       backup.sh: |
@@ -5325,7 +5389,7 @@ renders without backups:
         app.kubernetes.io/name: redis
         helm.sh/chart: redis-0.0.9
       name: backup
-  18: |
+  19: |
     apiVersion: arcana.helmetica.io/v1
     kind: Arcanum
     metadata:
@@ -5357,7 +5421,7 @@ renders without backups:
             value: default
       target:
         name: instance-credentials
-  19: |
+  20: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
@@ -5398,7 +5462,7 @@ renders without backups:
               labels:
                 audience: service_operator
                 severity: critical
-  20: |
+  21: |
     apiVersion: rituals.helmetica.io/v1
     kind: Definition
     metadata:
