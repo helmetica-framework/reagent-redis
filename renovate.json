@@ -25,6 +25,17 @@
     },
     {
       "customType": "regex",
+      "description": "Update the pinned images in values.yaml and templates annotated with a `# renovate:` comment",
+      "managerFilePatterns": [
+        "/(^|/)values\\.yaml$/",
+        "/(^|/)templates/.+\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-.]+?) depName=(?<depName>[^\\s]+?)(?: versioning=(?<versioning>[^\\s]+?))?\\n\\s*[^\\s:]+: (?:\\S+:)?(?<currentValue>[^@\\s:]+)@(?<currentDigest>sha256:[0-9a-f]+)"
+      ]
+    },
+    {
+      "customType": "regex",
       "description": "Update the just version used to bootstrap CI",
       "managerFilePatterns": [
         "/^\\.github/workflows/.+\\.ya?ml$/"

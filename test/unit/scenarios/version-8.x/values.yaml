@@ -1,0 +1,3 @@
+# The newest 8 release, whatever minor that is.
+service:
+  version: "8.x"

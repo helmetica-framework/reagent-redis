@@ -54,3 +54,18 @@ tests:
       - rituals/restart.yaml
     asserts:
       - matchSnapshot: {}
+
+  # service.version picks the image redis and sentinel run.
+  - it: renders 7.2
+    values:
+      - ./scenarios/version-7.2/values.yaml
+      - ./scenarios/version-7.2/computed.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: renders the newest 8
+    values:
+      - ./scenarios/version-8.x/values.yaml
+      - ./scenarios/version-8.x/computed.yaml
+    asserts:
+      - matchSnapshot: {}

@@ -134,6 +134,15 @@ service:
     enum: [1,3]
   replicas: 1
 
+  # Which Redis version runs.
+  # 8.x is the newest 8 release
+  # 7.2 is the 7.x LTS release
+  # 8.2 is the 8.x LTS release (default)
+  '#version':
+    type: string
+    enum: ['7.2', '8.2', '8.x']
+  version: '8.2'
+
   # The size of the data volume. Unrelated to the plan: a dataset that fits in memory still
   # needs room on disk for the append only file and the snapshots beside it.
   storage: 10Gi
@@ -147,6 +156,17 @@ service:
         type: string
   config: {}
 
+# The image each service.version runs. Renovate keeps each line inside its range.
+'#versions':
+  export: false
+versions:
+  # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>7)\.(?<minor>2)\.(?<patch>\d+)-alpine$
+  '7.2': 7.2.17-alpine@sha256:2c933526722b4126a61d5c170f766dc159adf97682f0b1cbbc27b1666ba96d84
+  # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>8)\.(?<minor>2)\.(?<patch>\d+)-alpine$
+  '8.2': 8.2.11-alpine@sha256:489a769e0a54dc245896132a15c72d2bc7296719954da99398f43a3877e5f8eb
+  # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>8)\.(?<minor>\d+)\.(?<patch>\d+)-alpine$
+  '8.x': 8.10.3-alpine@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537
+
 # Debug holds methods to debug the Helmetica bundle.
 debug:
   # heartbeatAlert adds an alert always evaluating to be firing.
@@ -158,6 +178,10 @@ redis:
   replicas: "cel: values.service.replicas"
 
   fullnameOverride: redis
+
+  image:
+    repository: public.ecr.aws/docker/library/redis
+    tag: "cel: values.versions[values.service.version]"
 
   auth: true
   existingSecret: '{{ .Release.Name }}-auth'
@@ -171,11 +195,21 @@ redis:
   podDisruptionBudget:
     maxUnavailable: 1
 
+  configmapTest:
+    image:
+      repository: koalaman/shellcheck
+      tag: v0.11.0@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+
   haproxy:
     enabled: "cel: values.service.replicas > 1"
+    image:
+      repository: public.ecr.aws/docker/library/haproxy
+      tag: 3.3.10-alpine@sha256:29c775f541ba6364ac95de998a8d3d16eb4882470c4fd7bbe8de8315edfdd883
 
   exporter:
     enabled: true
+    image: quay.io/oliver006/redis_exporter
+    tag: v1.86.0@sha256:2e9795be900db073e9475fdb9c5124db309b07a3e4e75a1770705cb03be1a1c8
     serviceMonitor:
       enabled: true
 
