@@ -1348,44 +1348,44 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance-auth
     type: Opaque
   13: |
-    apiVersion: seals.helmetica.io/v1
-    kind: Seal
+    apiVersion: sigillum.helmetica.io/v1
+    kind: NetworkConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: networkconfig
     spec:
       allowAllNamespaces: false
       allowedNamespaces: []
   14: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Maintenance
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: default
     spec:
       suspend: false
       window: ""
   15: |
-    apiVersion: backups.helmetica.io/v1
+    apiVersion: ampulla.helmetica.io/v1
     kind: BackupPolicy
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance
     spec:
       mode: Schedule
@@ -1399,7 +1399,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: email-alerting
     spec:
       receivers:
@@ -1439,7 +1439,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: allow-monitoring
     spec:
       ingress:
@@ -1458,7 +1458,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: billing
     spec:
       items:
@@ -1498,17 +1498,17 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: backup
   20: |
-    apiVersion: arcana.helmetica.io/v1
-    kind: Arcanum
+    apiVersion: custos.helmetica.io/v1
+    kind: CredentialConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: credentials
     spec:
       credentials:
@@ -1538,7 +1538,7 @@ renders 7.2:
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.9
+        chart: redis-0.0.11
         heritage: Helm
         release: instance
       name: instance-redis
@@ -1574,14 +1574,14 @@ renders 7.2:
                 audience: service_operator
                 severity: critical
   22: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Definition
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: restart
     spec:
       description: Restart the application
@@ -1601,14 +1601,14 @@ renders 7.2:
               restartPolicy: Never
 renders exposed:
   1: |
-    apiVersion: seals.helmetica.io/v1
-    kind: Seal
+    apiVersion: sigillum.helmetica.io/v1
+    kind: NetworkConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -1620,27 +1620,27 @@ renders exposed:
           name: redis
           protocol: TCP
   2: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Maintenance
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: default
     spec:
       suspend: false
       window: ""
   3: |
-    apiVersion: backups.helmetica.io/v1
+    apiVersion: ampulla.helmetica.io/v1
     kind: BackupPolicy
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance
     spec:
       mode: Schedule
@@ -1654,7 +1654,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: email-alerting
     spec:
       receivers:
@@ -1694,7 +1694,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: allow-monitoring
     spec:
       ingress:
@@ -1713,7 +1713,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: billing
     spec:
       items:
@@ -1753,30 +1753,30 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: backup
   8: |
-    apiVersion: arcana.helmetica.io/v1
-    kind: Arcanum
+    apiVersion: custos.helmetica.io/v1
+    kind: CredentialConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: credentials
     spec:
       credentials:
         valueMapping:
           REDIS_EXTERNAL_HOST:
-            apiVersion: seals.helmetica.io/v1
-            kind: Seal
+            apiVersion: sigillum.helmetica.io/v1
+            kind: NetworkConfig
             name: networkconfig
             path: '{.status.exposures[?(@.name=="redis")].address}'
             source: objectRef
           REDIS_EXTERNAL_PORT:
-            apiVersion: seals.helmetica.io/v1
-            kind: Seal
+            apiVersion: sigillum.helmetica.io/v1
+            kind: NetworkConfig
             name: networkconfig
             path: '{.status.exposures[?(@.name=="redis")].port}'
             source: objectRef
@@ -1812,14 +1812,14 @@ renders exposed:
       target:
         name: instance-credentials
   9: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Definition
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: restart
     spec:
       description: Restart the application
@@ -3591,44 +3591,44 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance-auth
     type: Opaque
   21: |
-    apiVersion: seals.helmetica.io/v1
-    kind: Seal
+    apiVersion: sigillum.helmetica.io/v1
+    kind: NetworkConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: networkconfig
     spec:
       allowAllNamespaces: false
       allowedNamespaces: []
   22: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Maintenance
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: default
     spec:
       suspend: false
       window: ""
   23: |
-    apiVersion: backups.helmetica.io/v1
+    apiVersion: ampulla.helmetica.io/v1
     kind: BackupPolicy
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance
     spec:
       mode: Schedule
@@ -3642,7 +3642,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: email-alerting
     spec:
       receivers:
@@ -3682,7 +3682,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: allow-monitoring
     spec:
       ingress:
@@ -3701,7 +3701,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: billing
     spec:
       items:
@@ -3741,17 +3741,17 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: backup
   28: |
-    apiVersion: arcana.helmetica.io/v1
-    kind: Arcanum
+    apiVersion: custos.helmetica.io/v1
+    kind: CredentialConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: credentials
     spec:
       credentials:
@@ -3790,7 +3790,7 @@ renders in ha:
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.9
+        chart: redis-0.0.11
         heritage: Helm
         release: instance
       name: instance-redis
@@ -3876,14 +3876,14 @@ renders in ha:
                 audience: service_operator
                 severity: warning
   30: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Definition
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: restart
     spec:
       description: Restart the application
@@ -5251,44 +5251,44 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance-auth
     type: Opaque
   13: |
-    apiVersion: seals.helmetica.io/v1
-    kind: Seal
+    apiVersion: sigillum.helmetica.io/v1
+    kind: NetworkConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: networkconfig
     spec:
       allowAllNamespaces: false
       allowedNamespaces: []
   14: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Maintenance
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: default
     spec:
       suspend: false
       window: ""
   15: |
-    apiVersion: backups.helmetica.io/v1
+    apiVersion: ampulla.helmetica.io/v1
     kind: BackupPolicy
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance
     spec:
       mode: Schedule
@@ -5302,7 +5302,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: email-alerting
     spec:
       receivers:
@@ -5342,7 +5342,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: allow-monitoring
     spec:
       ingress:
@@ -5361,7 +5361,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: billing
     spec:
       items:
@@ -5401,17 +5401,17 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: backup
   20: |
-    apiVersion: arcana.helmetica.io/v1
-    kind: Arcanum
+    apiVersion: custos.helmetica.io/v1
+    kind: CredentialConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: credentials
     spec:
       credentials:
@@ -5441,7 +5441,7 @@ renders the newest 8:
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.9
+        chart: redis-0.0.11
         heritage: Helm
         release: instance
       name: instance-redis
@@ -5477,14 +5477,14 @@ renders the newest 8:
                 audience: service_operator
                 severity: critical
   22: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Definition
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: restart
     spec:
       description: Restart the application
@@ -6852,44 +6852,44 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance-auth
     type: Opaque
   13: |
-    apiVersion: seals.helmetica.io/v1
-    kind: Seal
+    apiVersion: sigillum.helmetica.io/v1
+    kind: NetworkConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: networkconfig
     spec:
       allowAllNamespaces: false
       allowedNamespaces: []
   14: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Maintenance
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: default
     spec:
       suspend: false
       window: ""
   15: |
-    apiVersion: backups.helmetica.io/v1
+    apiVersion: ampulla.helmetica.io/v1
     kind: BackupPolicy
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance
     spec:
       mode: Schedule
@@ -6903,7 +6903,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: email-alerting
     spec:
       receivers:
@@ -6943,7 +6943,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: allow-monitoring
     spec:
       ingress:
@@ -6962,7 +6962,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: billing
     spec:
       items:
@@ -7002,17 +7002,17 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: backup
   20: |
-    apiVersion: arcana.helmetica.io/v1
-    kind: Arcanum
+    apiVersion: custos.helmetica.io/v1
+    kind: CredentialConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: credentials
     spec:
       credentials:
@@ -7042,7 +7042,7 @@ renders what it rendered last time:
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.9
+        chart: redis-0.0.11
         heritage: Helm
         release: instance
       name: instance-redis
@@ -7078,14 +7078,14 @@ renders what it rendered last time:
                 audience: service_operator
                 severity: critical
   22: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Definition
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: restart
     spec:
       description: Restart the application
@@ -8453,31 +8453,31 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: instance-auth
     type: Opaque
   13: |
-    apiVersion: seals.helmetica.io/v1
-    kind: Seal
+    apiVersion: sigillum.helmetica.io/v1
+    kind: NetworkConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: networkconfig
     spec:
       allowAllNamespaces: false
       allowedNamespaces: []
   14: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Maintenance
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: default
     spec:
       suspend: false
@@ -8490,7 +8490,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: email-alerting
     spec:
       receivers:
@@ -8530,7 +8530,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: allow-monitoring
     spec:
       ingress:
@@ -8549,7 +8549,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: billing
     spec:
       items:
@@ -8589,17 +8589,17 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: backup
   19: |
-    apiVersion: arcana.helmetica.io/v1
-    kind: Arcanum
+    apiVersion: custos.helmetica.io/v1
+    kind: CredentialConfig
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: credentials
     spec:
       credentials:
@@ -8629,7 +8629,7 @@ renders without backups:
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.9
+        chart: redis-0.0.11
         heritage: Helm
         release: instance
       name: instance-redis
@@ -8665,14 +8665,14 @@ renders without backups:
                 audience: service_operator
                 severity: critical
   21: |
-    apiVersion: rituals.helmetica.io/v1
+    apiVersion: adept.helmetica.io/v1
     kind: Definition
     metadata:
       labels:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.9
+        helm.sh/chart: redis-0.0.11
       name: restart
     spec:
       description: Restart the application
