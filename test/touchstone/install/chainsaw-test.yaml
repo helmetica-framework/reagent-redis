@@ -58,8 +58,8 @@ spec:
             file: sources.yaml
         - assert:
             resource:
-              apiVersion: helmetica.io/v1
-              kind: CustomResourceDefinitionSource
+              apiVersion: chrysopoeia.helmetica.io/v1
+              kind: ClaimDefinition
               metadata:
                 name: (join('', ['v', $major, '-', $id, '.', $chart]))
                 namespace: hel-chrysopoeia
@@ -138,7 +138,7 @@ spec:
                 name: redis-server
                 namespace: ($instanceNs)
               (status.readyReplicas == spec.replicas): true
-        # The password the chart mints for redis, which the Arcanum below reads back. Its
+        # The password the chart mints for redis, which the CredentialConfig below reads back. Its
         # value is generated once and then read out of the cluster on every later render,
         # so nothing here asserts what it is.
         - assert:
@@ -149,12 +149,12 @@ spec:
                 name: instance-auth
                 namespace: ($instanceNs)
               type: Opaque
-        # Only that the Arcanum was released. What custos makes of it, and whether a
+        # Only that the CredentialConfig was released. What custos makes of it, and whether a
         # client can use the result, is the connect test's business.
         - assert:
             resource:
-              apiVersion: arcana.helmetica.io/v1
-              kind: Arcanum
+              apiVersion: custos.helmetica.io/v1
+              kind: CredentialConfig
               metadata:
                 name: credentials
                 namespace: ($instanceNs)
@@ -163,7 +163,7 @@ spec:
         # bucket exists in athanor's Garage and k8up has a Schedule pointed at it.
         - assert:
             resource:
-              apiVersion: backups.helmetica.io/v1
+              apiVersion: ampulla.helmetica.io/v1
               kind: BackupPolicy
               metadata:
                 name: instance
@@ -172,7 +172,7 @@ spec:
                 phase: Ready
         - assert:
             resource:
-              apiVersion: rituals.helmetica.io/v1
+              apiVersion: adept.helmetica.io/v1
               kind: Definition
               metadata:
                 name: restart
@@ -181,7 +181,7 @@ spec:
         # depends on the MaintenanceWindows the cluster happens to carry.
         - assert:
             resource:
-              apiVersion: rituals.helmetica.io/v1
+              apiVersion: adept.helmetica.io/v1
               kind: Maintenance
               metadata:
                 name: default
@@ -202,18 +202,18 @@ spec:
               [ -n "$ns" ] || { echo "no instance namespace yet"; exit 0; }
               kubectl -n "$ns" describe helmrelease instance
         - describe:
-            apiVersion: helmetica.io/v1
-            kind: CustomResourceDefinitionSource
+            apiVersion: chrysopoeia.helmetica.io/v1
+            kind: ClaimDefinition
             namespace: hel-chrysopoeia
         - describe:
             apiVersion: source.toolkit.fluxcd.io/v1
             kind: OCIRepository
             namespace: hel-chrysopoeia
         - describe:
-            apiVersion: helmetica.io/v1
-            kind: InstanceRevision
+            apiVersion: chrysopoeia.helmetica.io/v1
+            kind: ClaimRevision
         - describe:
-            apiVersion: backups.helmetica.io/v1
+            apiVersion: ampulla.helmetica.io/v1
             kind: BackupPolicy
       cleanup:
         # Chrysopoeia owns the generated CRD, chainsaw does not clean it up.

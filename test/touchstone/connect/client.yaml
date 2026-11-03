@@ -14,7 +14,7 @@ spec:
         - name: client
           # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis
           image: public.ecr.aws/docker/library/redis:8.8.0-alpine
-          # Every REDIS_ variable the Arcanum hands out, as the environment a real
+          # Every REDIS_ variable the CredentialConfig hands out, as the environment a real
           # consumer would read.
           envFrom:
             - secretRef:

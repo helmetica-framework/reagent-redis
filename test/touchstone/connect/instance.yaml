@@ -13,7 +13,7 @@ spec:
     service:
       # A plan other than the default, so the run proves the cel: arithmetic against a real
       # chrysopoeia rather than only the default it would fall back to. The claim namespace
-      # is allowed through the Seal implicitly, so nothing has to be opened up.
+      # is allowed through the NetworkConfig implicitly, so nothing has to be opened up.
       plan: standard-2
       storage: 1Gi
       # A setting the chart does not compute, to prove the merge keeps both sides. maxmemory

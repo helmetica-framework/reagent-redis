@@ -55,8 +55,8 @@ spec:
             file: sources.yaml
         - assert:
             resource:
-              apiVersion: helmetica.io/v1
-              kind: CustomResourceDefinitionSource
+              apiVersion: chrysopoeia.helmetica.io/v1
+              kind: ClaimDefinition
               metadata:
                 name: (join('', ['v', $major, '-', $id, '.', $chart]))
                 namespace: hel-chrysopoeia
@@ -197,11 +197,11 @@ spec:
               [ -n "$ns" ] || { echo "no instance namespace yet"; exit 0; }
               kubectl -n "$ns" describe helmrelease instance
         - describe:
-            apiVersion: arcana.helmetica.io/v1
-            kind: Arcanum
+            apiVersion: custos.helmetica.io/v1
+            kind: CredentialConfig
         - describe:
-            apiVersion: seals.helmetica.io/v1
-            kind: Seal
+            apiVersion: sigillum.helmetica.io/v1
+            kind: NetworkConfig
         - describe:
             apiVersion: batch/v1
             kind: Job

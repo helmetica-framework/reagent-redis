@@ -1,9 +1,9 @@
 dependencies:
 - name: azoth
   repository: oci://ghcr.io/helmetica-framework
-  version: 0.0.6
+  version: 0.0.7
 - name: redis-ha
   repository: oci://ghcr.io/helmetica-framework
   version: 4.39.1
-digest: sha256:283f414f3476ad145f64f4278ac6c494d3d13b170fcf09515ef505e5ee39bcd4
-generated: "2026-10-30T12:15:24.798764087Z"
+digest: sha256:e2b2c348310e63b9b5c05c9de8bf763454e5264b6f1828136600b661826afa67
+generated: "2026-11-02T15:18:08.51771982Z"

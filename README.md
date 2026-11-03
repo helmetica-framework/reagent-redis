@@ -5,9 +5,9 @@ A helmetica reagent for Redis, wrapping [redis-ha][redis-ha] as its prima materi
 Creating one provisions a single instance Redis.
 It will create backups, networkpolicies and credentials and provide them to the user.
 
-The backup policy, the network seal and the maintenance window come from [azoth][azoth],
+The backup policy, the network config and the maintenance window come from [azoth][azoth],
 the framework's library chart, through the single include in `templates/azoth.yaml`. The
-credentials arcanum stays here, in `templates/credentials.yaml`, because its mapping varies
+credential config stays here, in `templates/credentials.yaml`, because its mapping varies
 with the replica count. The auth secret, the backup script, the rituals and the values in
 `values.yaml` are this chart's own too.
 

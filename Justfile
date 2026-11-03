@@ -176,7 +176,7 @@ infuse namespace="default" id="": build
         -o jsonpath='{.data.ca\.crt}' | base64 -d > "$ca"
     helm push {{ chart }}-{{ version }}.tgz oci://{{ ATHANOR_REGISTRY }} --ca-file "$ca"
 
-    # Chrysopoeia only watches CustomResourceDefinitionSources in its own namespace.
+    # Chrysopoeia only watches ClaimDefinitions in its own namespace.
     kubectl apply -f - <<EOF
     apiVersion: source.toolkit.fluxcd.io/v1
     kind: OCIRepository
@@ -204,8 +204,8 @@ infuse namespace="default" id="": build
       provider: generic
     ---
     # The name becomes the API group of the generated CRD: <name>.helmetica-bundles.io
-    apiVersion: helmetica.io/v1
-    kind: CustomResourceDefinitionSource
+    apiVersion: chrysopoeia.helmetica.io/v1
+    kind: ClaimDefinition
     metadata:
       name: $group
       namespace: hel-chrysopoeia
@@ -225,7 +225,7 @@ infuse namespace="default" id="": build
     EOF
 
     kubectl -n hel-chrysopoeia wait --for condition=Ready \
-        "customresourcedefinitionsource/$group" --timeout 120s
+        "claimdefinition/$group" --timeout 120s
 
     # Manually bump the imagerepository
     kubectl annotate imagerepository/{{ chart }}$suffix -n hel-chrysopoeia \
@@ -278,7 +278,7 @@ decant namespace="default" id="":
         kubectl -n {{ namespace }} delete "$crd" {{ chart }} --ignore-not-found
     fi
     kubectl -n hel-chrysopoeia delete \
-        "customresourcedefinitionsource/$group" \
+        "claimdefinition/$group" \
         "ocirepository/{{ chart }}-v{{ major }}$suffix" \
         "imagerepository/{{ chart }}$suffix" --ignore-not-found
     # Chrysopoeia owns the generated CRD, dropping its source does not remove it.

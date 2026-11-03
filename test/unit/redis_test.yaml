@@ -41,8 +41,8 @@ tests:
     asserts:
       - matchSnapshot: {}
 
-  # Exposed in ha: the Seal exposes the proxy, and the credentials read the
-  # external address back off the Seal.
+  # Exposed in ha: the NetworkConfig exposes the proxy, and the credentials read the
+  # external address back off the NetworkConfig.
   - it: renders exposed
     values:
       - ./scenarios/exposed/values.yaml

@@ -1,4 +1,4 @@
-# Chrysopoeia only watches CustomResourceDefinitionSources in its own namespace,
+# Chrysopoeia only watches ClaimDefinitions in its own namespace,
 # so the source trio lives in hel-chrysopoeia and not in the test namespace.
 # Names and URLs come from the chart's own metadata, nothing here is reagent specific.
 # $id is a hash of values.yaml (which the CRD schema is generated from) and the
@@ -29,8 +29,8 @@ spec:
   provider: generic
 ---
 # The name becomes the API group of the generated CRD: <name>.helmetica-bundles.io
-apiVersion: helmetica.io/v1
-kind: CustomResourceDefinitionSource
+apiVersion: chrysopoeia.helmetica.io/v1
+kind: ClaimDefinition
 metadata:
   name: (join('', ['v', $major, '-', $id, '.', $chart]))
   namespace: hel-chrysopoeia
