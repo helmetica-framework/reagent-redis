@@ -51,6 +51,7 @@ billing:
     plan: "cel: values.service.plan"
   items:
     storage: "cel: values.service.storage"
+    replicas: "cel: values.service.replicas" 
 
 network:
   # Whether the framework seals this service off at all. Not settable on a claim.
