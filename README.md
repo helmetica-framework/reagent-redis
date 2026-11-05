@@ -148,6 +148,11 @@ offline tests render against `test/unit/computed-values.yaml`, generated from
 `pkg/celvalues` in chrysopoeia. Regenerate it there if the expressions change. The
 touchstone is what proves the expressions themselves.
 
+The touchstone tests share their setup through `test/touchstone/shared/claim.yaml`, a
+chainsaw step template. Each test folder holds a `chainsaw-test.yaml` that uses it, an
+`instance.yaml` with the claim, and an `assert.yaml` checked once the release is ready.
+`$instanceNs` in `assert.yaml` is the namespace the chart was released into.
+
 To develop against a local azoth checkout, `just link ../azoth`, and `just unlink` when
 done. `push` and `release` refuse to run while it is linked.
 

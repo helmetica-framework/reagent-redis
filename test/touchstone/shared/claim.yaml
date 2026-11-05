@@ -1,0 +1,176 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: StepTemplate
+metadata:
+  name: claim
+spec:
+  # Override with `use.with.bindings` to give the claim another name.
+  bindings:
+    - name: instance
+      value: instance
+  try:
+    - script:
+        content: |
+          set -eu
+          cd ../../..
+          # The tests run in parallel and helm deletes the other run's tmpcharts dir
+          exec 9>/tmp/touchstone-publish.lock
+          flock 9
+          helm dependency build .
+          helm package .
+          ca=$(mktemp)
+          trap 'rm -f "$ca"' EXIT
+          kubectl -n kube-system get secret tls-server-certificate \
+            -o jsonpath='{.data.ca\.crt}' | base64 -d > "$ca"
+          chart=$(awk '/^name:/{print $2}' Chart.yaml)
+          version=$(awk '/^version:/{print $2}' Chart.yaml)
+          helm push "$chart-$version.tgz" oci://localhost:5000/charts --ca-file "$ca"
+
+    - script:
+        content: awk '/^name:/{printf "%s", $2}' ../../../Chart.yaml
+        outputs:
+          - name: chart
+            value: ($stdout)
+    - script:
+        content: awk '/^version:/{printf "%s", $2}' ../../../Chart.yaml
+        outputs:
+          - name: version
+            value: ($stdout)
+    - script:
+        content: awk '/^version:/{split($2, v, "."); printf "%s", v[1]}' ../../../Chart.yaml
+        outputs:
+          - name: major
+            value: ($stdout)
+    # Hash of values.yaml, the file the CRD schema is generated from, plus
+    # the test namespace chainsaw generated: every test gets its own API
+    # group, so parallel runs and sibling tests never share a CRD.
+    - script:
+        content: |
+          { cat ../../../values.yaml; echo "$NAMESPACE"; } \
+            | sha256sum | cut -c1-8 | tr -d '\n'
+        outputs:
+          - name: id
+            value: ($stdout)
+
+    - apply:
+        file: ../shared/sources.yaml
+    - assert:
+        resource:
+          apiVersion: chrysopoeia.helmetica.io/v1
+          kind: ClaimDefinition
+          metadata:
+            name: (join('', ['v', $major, '-', $id, '.', $chart]))
+            namespace: hel-chrysopoeia
+          status:
+            (conditions[?type == 'Ready']):
+              - status: "True"
+
+    # Chrysopoeia derives kind and plural from the chart, so both are read.
+    - script:
+        content: |
+          kubectl get crd \
+            -o jsonpath="{.items[?(@.spec.group=='v$MAJOR-$ID.$CHART.helmetica-bundles.io')].spec.names.kind}"
+        env:
+          - name: CHART
+            value: ($chart)
+          - name: MAJOR
+            value: ($major)
+          - name: ID
+            value: ($id)
+        outputs:
+          - name: kind
+            value: ($stdout)
+    - script:
+        content: |
+          kubectl get crd \
+            -o jsonpath="{.items[?(@.spec.group=='v$MAJOR-$ID.$CHART.helmetica-bundles.io')].metadata.name}"
+        env:
+          - name: CHART
+            value: ($chart)
+          - name: MAJOR
+            value: ($major)
+          - name: ID
+            value: ($id)
+        outputs:
+          - name: crd
+            value: ($stdout)
+
+    # From the test's own folder.
+    - apply:
+        file: instance.yaml
+    - assert:
+        resource:
+          apiVersion: (join('', ['v', $major, '-', $id, '.', $chart, '.helmetica-bundles.io/bundle']))
+          kind: ($kind)
+          metadata:
+            name: ($instance)
+          status:
+            releaseStatus: Ready
+
+    # Chrysopoeia releases the chart into a namespace of its own.
+    - script:
+        content: kubectl -n $NAMESPACE get $CRD $INSTANCE -o jsonpath='{.status.instanceNamespace}'
+        env:
+          - name: CRD
+            value: ($crd)
+          - name: INSTANCE
+            value: ($instance)
+        outputs:
+          - name: instanceNs
+            value: ($stdout)
+    - assert:
+        resource:
+          apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          metadata:
+            name: ($instance)
+            namespace: ($instanceNs)
+          status:
+            (conditions[?type == 'Ready']):
+              - status: "True"
+
+    # From the test's own folder. Can use $instanceNs, $chart, $kind and the
+    # other bindings above.
+    - assert:
+        file: assert.yaml
+
+  catch:
+    # Chrysopoeia releases into its own namespace, so describe cannot find it by itself.
+    # Bindings from the try block are missing if it failed early, so look everything up again.
+    - script:
+        content: |
+          chart=$(awk '/^name:/{print $2}' ../../../Chart.yaml)
+          major=$(awk '/^version:/{split($2, v, "."); print v[1]}' ../../../Chart.yaml)
+          id=$({ cat ../../../values.yaml; echo "$NAMESPACE"; } | sha256sum | cut -c1-8)
+          crd=$(kubectl get crd \
+            -o jsonpath="{.items[?(@.spec.group=='v$major-$id.$chart.helmetica-bundles.io')].metadata.name}")
+          [ -n "$crd" ] || { echo "no CRD yet"; exit 0; }
+          ns=$(kubectl -n "$NAMESPACE" get "$crd" "$INSTANCE" -o jsonpath='{.status.instanceNamespace}' 2>/dev/null)
+          [ -n "$ns" ] || { echo "no instance namespace yet"; exit 0; }
+          kubectl -n "$ns" describe helmrelease "$INSTANCE"
+        env:
+          - name: INSTANCE
+            value: ($instance)
+    - describe:
+        apiVersion: chrysopoeia.helmetica.io/v1
+        kind: ClaimDefinition
+        namespace: hel-chrysopoeia
+    - describe:
+        apiVersion: source.toolkit.fluxcd.io/v1
+        kind: OCIRepository
+        namespace: hel-chrysopoeia
+    - describe:
+        apiVersion: chrysopoeia.helmetica.io/v1
+        kind: ClaimRevision
+    - describe:
+        apiVersion: ampulla.helmetica.io/v1
+        kind: BackupPolicy
+  cleanup:
+    # Chrysopoeia owns the generated CRD, chainsaw does not clean it up.
+    - script:
+        content: |
+          chart=$(awk '/^name:/{print $2}' ../../../Chart.yaml)
+          major=$(awk '/^version:/{split($2, v, "."); print v[1]}' ../../../Chart.yaml)
+          id=$({ cat ../../../values.yaml; echo "$NAMESPACE"; } | sha256sum | cut -c1-8)
+          crd=$(kubectl get crd \
+            -o jsonpath="{.items[?(@.spec.group=='v$major-$id.$chart.helmetica-bundles.io')].metadata.name}")
+          [ -z "$crd" ] || kubectl delete crd "$crd" --ignore-not-found
