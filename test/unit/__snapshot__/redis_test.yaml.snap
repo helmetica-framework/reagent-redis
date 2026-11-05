@@ -1598,7 +1598,7 @@ renders 7.2:
                     - statefulset/redis-server
                   command:
                     - kubectl
-                  image: registry.k8s.io/kubectl:v1.34.1@sha256:59bafa07ff3a6d4b417e7633ddb9d79a9606ca98bf64bac080b3e65748669250
+                  image: registry.k8s.io/kubectl:v1.37.2@sha256:fe049faa65ae483ac200009a949a68fa4c9985daea12c9cb1195c9c7965301fc
                   name: restart
               restartPolicy: Never
 renders exposed:
@@ -1838,7 +1838,7 @@ renders exposed:
                     - statefulset/redis-server
                   command:
                     - kubectl
-                  image: registry.k8s.io/kubectl:v1.34.1@sha256:59bafa07ff3a6d4b417e7633ddb9d79a9606ca98bf64bac080b3e65748669250
+                  image: registry.k8s.io/kubectl:v1.37.2@sha256:fe049faa65ae483ac200009a949a68fa4c9985daea12c9cb1195c9c7965301fc
                   name: restart
               restartPolicy: Never
 renders in ha:
@@ -3904,7 +3904,7 @@ renders in ha:
                     - statefulset/redis-server
                   command:
                     - kubectl
-                  image: registry.k8s.io/kubectl:v1.34.1@sha256:59bafa07ff3a6d4b417e7633ddb9d79a9606ca98bf64bac080b3e65748669250
+                  image: registry.k8s.io/kubectl:v1.37.2@sha256:fe049faa65ae483ac200009a949a68fa4c9985daea12c9cb1195c9c7965301fc
                   name: restart
               restartPolicy: Never
 renders the newest 8:
@@ -5507,7 +5507,7 @@ renders the newest 8:
                     - statefulset/redis-server
                   command:
                     - kubectl
-                  image: registry.k8s.io/kubectl:v1.34.1@sha256:59bafa07ff3a6d4b417e7633ddb9d79a9606ca98bf64bac080b3e65748669250
+                  image: registry.k8s.io/kubectl:v1.37.2@sha256:fe049faa65ae483ac200009a949a68fa4c9985daea12c9cb1195c9c7965301fc
                   name: restart
               restartPolicy: Never
 renders what it rendered last time:
@@ -7110,7 +7110,7 @@ renders what it rendered last time:
                     - statefulset/redis-server
                   command:
                     - kubectl
-                  image: registry.k8s.io/kubectl:v1.34.1@sha256:59bafa07ff3a6d4b417e7633ddb9d79a9606ca98bf64bac080b3e65748669250
+                  image: registry.k8s.io/kubectl:v1.37.2@sha256:fe049faa65ae483ac200009a949a68fa4c9985daea12c9cb1195c9c7965301fc
                   name: restart
               restartPolicy: Never
 renders without backups:
@@ -8699,6 +8699,6 @@ renders without backups:
                     - statefulset/redis-server
                   command:
                     - kubectl
-                  image: registry.k8s.io/kubectl:v1.34.1@sha256:59bafa07ff3a6d4b417e7633ddb9d79a9606ca98bf64bac080b3e65748669250
+                  image: registry.k8s.io/kubectl:v1.37.2@sha256:fe049faa65ae483ac200009a949a68fa4c9985daea12c9cb1195c9c7965301fc
                   name: restart
               restartPolicy: Never
