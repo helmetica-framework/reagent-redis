@@ -13,6 +13,9 @@ spec:
             content: |
               set -eu
               cd ../../..
+              # The tests run in parallel and helm deletes the other run's tmpcharts dir
+              exec 9>/tmp/touchstone-publish.lock
+              flock 9
               helm dependency build .
               helm package .
               ca=$(mktemp)
