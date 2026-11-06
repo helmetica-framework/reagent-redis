@@ -12,7 +12,7 @@ spec:
   interval: 5m
   provider: generic
   ref:
-    semver: (join('', [$major, '.x']))
+    tag: ($version)
   url: (join('', ['oci://registry.kube-system.svc:5000/charts/', $chart]))
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
