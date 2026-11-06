@@ -3359,7 +3359,7 @@ renders in ha:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/haproxy:3.3.10-alpine@sha256:29c775f541ba6364ac95de998a8d3d16eb4882470c4fd7bbe8de8315edfdd883
+              image: public.ecr.aws/docker/library/haproxy:3.4.7-alpine@sha256:5312d37032c079c4937d45ef63758852434351f3b425a3703521fd999837abcf
               imagePullPolicy: IfNotPresent
               lifecycle: {}
               livenessProbe:
@@ -3399,7 +3399,7 @@ renders in ha:
                 - /readonly/haproxy_init.sh
               command:
                 - sh
-              image: public.ecr.aws/docker/library/haproxy:3.3.10-alpine@sha256:29c775f541ba6364ac95de998a8d3d16eb4882470c4fd7bbe8de8315edfdd883
+              image: public.ecr.aws/docker/library/haproxy:3.4.7-alpine@sha256:5312d37032c079c4937d45ef63758852434351f3b425a3703521fd999837abcf
               imagePullPolicy: IfNotPresent
               name: config-init
               resources: {}
