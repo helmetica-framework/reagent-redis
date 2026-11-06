@@ -1,0 +1,54 @@
+# Asserted once the HelmRelease is ready. $instanceNs is the namespace chrysopoeia
+# released the chart into.
+#
+# The reagent's own workload. redis-ha pins the name through fullnameOverride, so
+# it is the same whatever the instance is called.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-server
+  namespace: ($instanceNs)
+(status.readyReplicas == spec.replicas): true
+---
+# The password the chart mints for redis, which the CredentialConfig below reads back. Its
+# value is generated once and then read out of the cluster on every later render,
+# so nothing here asserts what it is.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: instance-auth
+  namespace: ($instanceNs)
+type: Opaque
+---
+# Only that the CredentialConfig was released. What custos makes of it, and whether a
+# client can use the result, is the connect test's business.
+apiVersion: custos.helmetica.io/v1
+kind: CredentialConfig
+metadata:
+  name: credentials
+  namespace: ($instanceNs)
+---
+# The whole contract between a reagent and ampulla: the chart renders the policy,
+# ampulla provisions the bucket and the schedule behind it. Ready means a real
+# bucket exists in athanor's Garage and k8up has a Schedule pointed at it.
+apiVersion: ampulla.helmetica.io/v1
+kind: BackupPolicy
+metadata:
+  name: instance
+  namespace: ($instanceNs)
+status:
+  phase: Ready
+---
+apiVersion: adept.helmetica.io/v1
+kind: Definition
+metadata:
+  name: restart
+  namespace: ($instanceNs)
+---
+# Only that the schedule reaches the instance. What the adept resolves it to
+# depends on the MaintenanceWindows the cluster happens to carry.
+apiVersion: adept.helmetica.io/v1
+kind: Maintenance
+metadata:
+  name: default
+  namespace: ($instanceNs)
