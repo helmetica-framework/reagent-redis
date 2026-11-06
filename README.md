@@ -61,7 +61,7 @@ helx-redis-...
 | `network.expose` | `false` | Make Redis reachable from outside the cluster. The proxy with three replicas, otherwise the headless service. The address goes into the `REDIS_EXTERNAL_*` credentials. Sentinel is not exposed, see [Topology](#topology). |
 | `maintenance.window` | operator default | The MaintenanceWindow this instance starts in. |
 | `maintenance.suspend` | `false` | Keep the schedule but do not run maintenance. |
-| `credentials.targetSecret` | `<claim>-credentials` | Where the connection details are written. |
+| `credentials.prefix` | claim name | Start of the name of the Secret the connection details are written to. Custos appends a hash of the claim's group and kind; the full name is in the CredentialConfig's `status.secretName`. |
 
 Everything else about the subchart is the reagent's decision and is not in the API. See
 `values.yaml` for what is fixed and why.
@@ -82,12 +82,15 @@ snapshot.
 
 ## Credentials
 
-Credentials are automatically provided in the same namespace as the claim.
+Credentials are automatically provided in the same namespace as the claim, in a Secret
+named after the claim (or `credentials.prefix`) plus a hash of the claim's group and kind,
+so a Redis and a PostgreSQL claim sharing a name never share a Secret. The full name is in
+the CredentialConfig's `status.secretName`:
 
 ```yaml
 envFrom:
   - secretRef:
-      name: cache-credentials
+      name: cache-1a2b3c4d
 ```
 
 | Key | Notes |

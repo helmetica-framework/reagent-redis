@@ -105,9 +105,11 @@ credentials:
     export: false
   enabled: false
 
-  # Secret name which will contain the service's connection details.
-  # Defaults to releaseName-credentials.
-  targetSecret: ""
+  # Start of the name of the Secret holding the service's connection details. Custos
+  # appends a hash of the claim's group and kind, so claims of different kinds sharing a
+  # name never share a Secret. Defaults to the claim name. The full name is in the
+  # CredentialConfig's status.secretName.
+  prefix: ""
 
 alerting:
   enabled: true

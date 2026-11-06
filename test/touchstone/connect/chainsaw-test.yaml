@@ -161,6 +161,26 @@ spec:
               # and the maxmemory it tried to set alongside it did not.
               (contains(data."redis.conf", '99gb')): false
 
+        # Custos names the Secret after the claim plus a hash of its group and kind, so
+        # claims of different kinds sharing a name never share a Secret. Worked out here
+        # rather than read off the status, so the test also pins the naming rule.
+        - script:
+            content: |
+              printf '%s' "v$MAJOR-$ID.$CHART.helmetica-bundles.io/$KIND" \
+                | sha256sum | cut -c1-8 | tr -d '\n'
+            env:
+              - name: CHART
+                value: ($chart)
+              - name: MAJOR
+                value: ($major)
+              - name: ID
+                value: ($id)
+              - name: KIND
+                value: ($kind)
+            outputs:
+              - name: secret
+                value: (join('', ['instance-', $stdout]))
+
         # Custos writes the resolved credentials beside the claim rather than beside the
         # service, so this lands in the test's own namespace.
         - assert:
@@ -168,7 +188,7 @@ spec:
               apiVersion: v1
               kind: Secret
               metadata:
-                name: instance-credentials
+                name: ($secret)
               type: Opaque
 
         - apply:

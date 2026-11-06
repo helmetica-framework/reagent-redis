@@ -1348,7 +1348,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance-auth
     type: Opaque
   13: |
@@ -1359,7 +1359,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -1372,7 +1372,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: default
     spec:
       suspend: false
@@ -1385,7 +1385,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance
     spec:
       mode: Schedule
@@ -1399,7 +1399,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: email-alerting
     spec:
       receivers:
@@ -1439,7 +1439,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: allow-monitoring
     spec:
       ingress:
@@ -1458,10 +1458,12 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: billing
     spec:
       items:
+        - name: replicas
+          value: "1"
         - name: storage
           value: 10Gi
       metadata:
@@ -1498,7 +1500,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: backup
   20: |
     apiVersion: custos.helmetica.io/v1
@@ -1508,7 +1510,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: credentials
     spec:
       credentials:
@@ -1530,15 +1532,13 @@ renders 7.2:
           REDIS_USERNAME:
             source: const
             value: default
-      target:
-        name: instance-credentials
   21: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.11
+        chart: redis-0.0.12
         heritage: Helm
         release: instance
       name: instance-redis
@@ -1581,7 +1581,7 @@ renders 7.2:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: restart
     spec:
       description: Restart the application
@@ -1608,7 +1608,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -1627,7 +1627,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: default
     spec:
       suspend: false
@@ -1640,7 +1640,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance
     spec:
       mode: Schedule
@@ -1654,7 +1654,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: email-alerting
     spec:
       receivers:
@@ -1694,7 +1694,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: allow-monitoring
     spec:
       ingress:
@@ -1713,10 +1713,12 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: billing
     spec:
       items:
+        - name: replicas
+          value: "3"
         - name: storage
           value: 10Gi
       metadata:
@@ -1753,7 +1755,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: backup
   8: |
     apiVersion: custos.helmetica.io/v1
@@ -1763,7 +1765,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: credentials
     spec:
       credentials:
@@ -1809,8 +1811,6 @@ renders exposed:
           REDIS_USERNAME:
             source: const
             value: default
-      target:
-        name: instance-credentials
   9: |
     apiVersion: adept.helmetica.io/v1
     kind: Definition
@@ -1819,7 +1819,7 @@ renders exposed:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: restart
     spec:
       description: Restart the application
@@ -3591,7 +3591,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance-auth
     type: Opaque
   21: |
@@ -3602,7 +3602,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -3615,7 +3615,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: default
     spec:
       suspend: false
@@ -3628,7 +3628,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance
     spec:
       mode: Schedule
@@ -3642,7 +3642,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: email-alerting
     spec:
       receivers:
@@ -3682,7 +3682,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: allow-monitoring
     spec:
       ingress:
@@ -3701,10 +3701,12 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: billing
     spec:
       items:
+        - name: replicas
+          value: "3"
         - name: storage
           value: 10Gi
       metadata:
@@ -3741,7 +3743,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: backup
   28: |
     apiVersion: custos.helmetica.io/v1
@@ -3751,7 +3753,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: credentials
     spec:
       credentials:
@@ -3782,15 +3784,13 @@ renders in ha:
           REDIS_USERNAME:
             source: const
             value: default
-      target:
-        name: instance-credentials
   29: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.11
+        chart: redis-0.0.12
         heritage: Helm
         release: instance
       name: instance-redis
@@ -3883,7 +3883,7 @@ renders in ha:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: restart
     spec:
       description: Restart the application
@@ -5251,7 +5251,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance-auth
     type: Opaque
   13: |
@@ -5262,7 +5262,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -5275,7 +5275,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: default
     spec:
       suspend: false
@@ -5288,7 +5288,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance
     spec:
       mode: Schedule
@@ -5302,7 +5302,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: email-alerting
     spec:
       receivers:
@@ -5342,7 +5342,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: allow-monitoring
     spec:
       ingress:
@@ -5361,10 +5361,12 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: billing
     spec:
       items:
+        - name: replicas
+          value: "1"
         - name: storage
           value: 10Gi
       metadata:
@@ -5401,7 +5403,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: backup
   20: |
     apiVersion: custos.helmetica.io/v1
@@ -5411,7 +5413,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: credentials
     spec:
       credentials:
@@ -5433,15 +5435,13 @@ renders the newest 8:
           REDIS_USERNAME:
             source: const
             value: default
-      target:
-        name: instance-credentials
   21: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.11
+        chart: redis-0.0.12
         heritage: Helm
         release: instance
       name: instance-redis
@@ -5484,7 +5484,7 @@ renders the newest 8:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: restart
     spec:
       description: Restart the application
@@ -6852,7 +6852,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance-auth
     type: Opaque
   13: |
@@ -6863,7 +6863,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -6876,7 +6876,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: default
     spec:
       suspend: false
@@ -6889,7 +6889,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance
     spec:
       mode: Schedule
@@ -6903,7 +6903,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: email-alerting
     spec:
       receivers:
@@ -6943,7 +6943,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: allow-monitoring
     spec:
       ingress:
@@ -6962,10 +6962,12 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: billing
     spec:
       items:
+        - name: replicas
+          value: "1"
         - name: storage
           value: 10Gi
       metadata:
@@ -7002,7 +7004,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: backup
   20: |
     apiVersion: custos.helmetica.io/v1
@@ -7012,7 +7014,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: credentials
     spec:
       credentials:
@@ -7034,15 +7036,13 @@ renders what it rendered last time:
           REDIS_USERNAME:
             source: const
             value: default
-      target:
-        name: instance-credentials
   21: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.11
+        chart: redis-0.0.12
         heritage: Helm
         release: instance
       name: instance-redis
@@ -7085,7 +7085,7 @@ renders what it rendered last time:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: restart
     spec:
       description: Restart the application
@@ -8453,7 +8453,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: instance-auth
     type: Opaque
   13: |
@@ -8464,7 +8464,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: networkconfig
     spec:
       allowAllNamespaces: false
@@ -8477,7 +8477,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: default
     spec:
       suspend: false
@@ -8490,7 +8490,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: email-alerting
     spec:
       receivers:
@@ -8530,7 +8530,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: allow-monitoring
     spec:
       ingress:
@@ -8549,10 +8549,12 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: billing
     spec:
       items:
+        - name: replicas
+          value: "1"
         - name: storage
           value: 10Gi
       metadata:
@@ -8589,7 +8591,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: backup
   19: |
     apiVersion: custos.helmetica.io/v1
@@ -8599,7 +8601,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: credentials
     spec:
       credentials:
@@ -8621,15 +8623,13 @@ renders without backups:
           REDIS_USERNAME:
             source: const
             value: default
-      target:
-        name: instance-credentials
   20: |
     apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
     metadata:
       labels:
         app: redis
-        chart: redis-0.0.11
+        chart: redis-0.0.12
         heritage: Helm
         release: instance
       name: instance-redis
@@ -8672,7 +8672,7 @@ renders without backups:
         app.kubernetes.io/instance: instance
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: redis
-        helm.sh/chart: redis-0.0.11
+        helm.sh/chart: redis-0.0.12
       name: restart
     spec:
       description: Restart the application

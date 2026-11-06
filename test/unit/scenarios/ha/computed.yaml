@@ -4,6 +4,7 @@
 
 billing:
   items:
+    replicas: 3
     storage: 10Gi
   metadata:
     plan: standard-1
