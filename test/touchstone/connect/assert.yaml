@@ -39,5 +39,5 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: instance-credentials
+  name: ($secret)
 type: Opaque

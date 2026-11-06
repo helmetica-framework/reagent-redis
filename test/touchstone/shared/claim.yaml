@@ -128,8 +128,28 @@ spec:
             (conditions[?type == 'Ready']):
               - status: "True"
 
-    # From the test's own folder. Can use $instanceNs, $chart, $kind and the
-    # other bindings above.
+    # Custos names the credentials Secret after the claim plus a hash of its group
+    # and kind, so claims of different kinds sharing a name never share a Secret.
+    # Worked out here rather than read off the status, so the tests pin the rule.
+    - script:
+        content: |
+          printf '%s' "v$MAJOR-$ID.$CHART.helmetica-bundles.io/$KIND" \
+            | sha256sum | cut -c1-8 | tr -d '\n'
+        env:
+          - name: CHART
+            value: ($chart)
+          - name: MAJOR
+            value: ($major)
+          - name: ID
+            value: ($id)
+          - name: KIND
+            value: ($kind)
+        outputs:
+          - name: secret
+            value: (join('', [$instance, '-', $stdout]))
+
+    # From the test's own folder. Can use $instanceNs, $secret, $chart, $kind and
+    # the other bindings above.
     - assert:
         file: assert.yaml
 

@@ -11,9 +11,19 @@ spec:
       use:
         template: ../shared/claim.yaml
 
-    # Runs in the test's own namespace, so it needs none of the template's bindings.
+    # Runs in the test's own namespace. The template's bindings do not reach this
+    # step, so the Secret custos wrote is found by its label; the template already
+    # asserted its name.
     - name: connect with a client
       try:
+        - script:
+            content: |
+              kubectl -n $NAMESPACE get secret \
+                -l custos.helmetica.io/credentialconfig-name=credentials \
+                -o jsonpath='{.items[0].metadata.name}'
+            outputs:
+              - name: secret
+                value: ($stdout)
         - apply:
             file: client.yaml
         - assert:

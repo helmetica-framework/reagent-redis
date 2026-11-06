@@ -18,7 +18,7 @@ spec:
           # consumer would read.
           envFrom:
             - secretRef:
-                name: instance-credentials
+                name: ($secret)
           command:
             - sh
             - -ec
