@@ -166,7 +166,7 @@ versions:
   # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>8)\.(?<minor>2)\.(?<patch>\d+)-alpine$
   '8.2': 8.2.11-alpine@sha256:489a769e0a54dc245896132a15c72d2bc7296719954da99398f43a3877e5f8eb
   # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>8)\.(?<minor>\d+)\.(?<patch>\d+)-alpine$
-  '8.x': 8.10.3-alpine@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537
+  '8.x': 8.10.3-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
 
 # Debug holds methods to debug the Helmetica bundle.
 debug:
