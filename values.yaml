@@ -162,7 +162,7 @@ service:
   export: false
 versions:
   # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>7)\.(?<minor>2)\.(?<patch>\d+)-alpine$
-  '7.2': 7.2.17-alpine@sha256:3d2b46efa3280299fe6e117a33fccdfeb495c39098f95d076fadd12a88005b0a
+  '7.2': 7.2.17-alpine@sha256:2f66de68111e64c3927859f158f8e666066dae2b97d9f82770a6f37a5aa1c335
   # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>8)\.(?<minor>2)\.(?<patch>\d+)-alpine$
   '8.2': 8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
   # renovate: datasource=docker depName=public.ecr.aws/docker/library/redis versioning=regex:^(?<major>8)\.(?<minor>\d+)\.(?<patch>\d+)-alpine$
