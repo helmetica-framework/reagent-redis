@@ -35,7 +35,7 @@ spec:
           labels:
             severity: critical
             audience: service_operator
-        {{- if (gt .Values.service.replicas 1.0) }}
+        {{- if (gt (.Values.service.replicas | int) 1) }}
         - alert: RedisMasterCountIssue
           annotations:
             message: Redis cluster does not have exactly one master node.
