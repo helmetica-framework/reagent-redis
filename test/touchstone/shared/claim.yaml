@@ -59,7 +59,7 @@ spec:
           kind: ClaimDefinition
           metadata:
             name: (join('', ['v', $major, '-', $id, '.', $chart]))
-            namespace: hel-chrysopoeia
+            namespace: ($values.helmeticaNamespace)
           status:
             (conditions[?type == 'Ready']):
               - status: "True"
@@ -173,11 +173,11 @@ spec:
     - describe:
         apiVersion: chrysopoeia.helmetica.io/v1
         kind: ClaimDefinition
-        namespace: hel-chrysopoeia
+        namespace: ($values.helmeticaNamespace)
     - describe:
         apiVersion: source.toolkit.fluxcd.io/v1
         kind: OCIRepository
-        namespace: hel-chrysopoeia
+        namespace: ($values.helmeticaNamespace)
     - describe:
         apiVersion: chrysopoeia.helmetica.io/v1
         kind: ClaimRevision
