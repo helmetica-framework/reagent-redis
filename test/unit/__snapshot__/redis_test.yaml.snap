@@ -3004,7 +3004,7 @@ renders in ha:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               lifecycle:
                 preStop:
@@ -3085,7 +3085,7 @@ renders in ha:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               lifecycle: {}
               livenessProbe:
@@ -3156,7 +3156,7 @@ renders in ha:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 exec:
@@ -3254,7 +3254,7 @@ renders in ha:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               name: config-init
               resources: {}
@@ -3566,7 +3566,7 @@ renders in ha:
             - sh
             - -c
             - redis-cli -h redis-haproxy -p 6379 info server
-          image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+          image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
           name: instance-service-test
           resources: {}
           securityContext:
@@ -6507,7 +6507,7 @@ renders what it rendered last time:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               lifecycle:
                 preStop:
@@ -6588,7 +6588,7 @@ renders what it rendered last time:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               lifecycle: {}
               livenessProbe:
@@ -6655,7 +6655,7 @@ renders what it rendered last time:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 exec:
@@ -6749,7 +6749,7 @@ renders what it rendered last time:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               name: config-init
               resources: {}
@@ -8108,7 +8108,7 @@ renders without backups:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               lifecycle:
                 preStop:
@@ -8189,7 +8189,7 @@ renders without backups:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               lifecycle: {}
               livenessProbe:
@@ -8256,7 +8256,7 @@ renders without backups:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 exec:
@@ -8350,7 +8350,7 @@ renders without backups:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:fe9daae35cd4fd6ec22416aa4fe0cf6b3e36741e06ff45b9986253fe2a81c041
+              image: public.ecr.aws/docker/library/redis:8.2.11-alpine@sha256:da23c2478319ceb4903857d77a2fd7aa5137d9e9d4c8165dafbacedac6403e95
               imagePullPolicy: IfNotPresent
               name: config-init
               resources: {}
