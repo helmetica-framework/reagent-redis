@@ -4906,7 +4906,7 @@ renders the newest 8:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
+              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:7958cfbb9d152f87dadfbc89f1b0b15938f0b81ff8982feb327476f4911935c3
               imagePullPolicy: IfNotPresent
               lifecycle:
                 preStop:
@@ -4987,7 +4987,7 @@ renders the newest 8:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
+              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:7958cfbb9d152f87dadfbc89f1b0b15938f0b81ff8982feb327476f4911935c3
               imagePullPolicy: IfNotPresent
               lifecycle: {}
               livenessProbe:
@@ -5054,7 +5054,7 @@ renders the newest 8:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
+              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:7958cfbb9d152f87dadfbc89f1b0b15938f0b81ff8982feb327476f4911935c3
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 exec:
@@ -5148,7 +5148,7 @@ renders the newest 8:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
+              image: public.ecr.aws/docker/library/redis:8.10.3-alpine@sha256:7958cfbb9d152f87dadfbc89f1b0b15938f0b81ff8982feb327476f4911935c3
               imagePullPolicy: IfNotPresent
               name: config-init
               resources: {}
