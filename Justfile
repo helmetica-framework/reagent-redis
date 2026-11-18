@@ -9,6 +9,13 @@ AZOTH_LINK := ".azoth-link"
 # and as registry.kube-system.svc from inside the cluster.
 ATHANOR_REGISTRY := "localhost:5000/charts"
 ATHANOR_REGISTRY_INTERNAL := "registry.kube-system.svc:5000/charts"
+# Namespace where chrysopoeia runs. It only watches ClaimDefinitions there.
+# Empty when no cluster is reachable, so recipes that do not need one still run.
+HELMETICA_NAMESPACE := `
+  kubectl get deployment --all-namespaces \
+      --field-selector metadata.name=chrysopoeia-controller-manager \
+      -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || true
+`
 
 # renovate: datasource=go depName=github.com/kyverno/chainsaw
 CHAINSAW_VERSION := "v0.2.15"
@@ -129,7 +136,12 @@ push: _guard-unlinked build
 
 # Read the reagent's purity: end-to-end test against a running athanor cluster (just ignite).
 touchstone:
-    {{ CHAINSAW_CMD }} test --config test/touchstone/chainsaw-config.yaml test/touchstone --quiet
+    #!/usr/bin/env bash
+    set -euo pipefail
+    test -n "{{ HELMETICA_NAMESPACE }}" \
+        || { echo "chrysopoeia-controller-manager not found; is chrysopoeia installed?" >&2; exit 1; }
+    {{ CHAINSAW_CMD }} test --config test/touchstone/chainsaw-config.yaml test/touchstone --quiet \
+        --set-string helmeticaNamespace={{ HELMETICA_NAMESPACE }}
 
 # Push main, tag the current commit and push the tag to trigger the release
 release: _guard-unlinked
@@ -157,6 +169,8 @@ mix namespace="default":
 infuse namespace="default" id="": build
     #!/usr/bin/env bash
     set -euo pipefail
+    test -n "{{ HELMETICA_NAMESPACE }}" \
+        || { echo "chrysopoeia-controller-manager not found; is chrysopoeia installed?" >&2; exit 1; }
 
     suffix=""
     if [ -n "{{ id }}" ]; then suffix="-{{ id }}"; fi
@@ -182,7 +196,7 @@ infuse namespace="default" id="": build
     kind: OCIRepository
     metadata:
       name: {{ chart }}-v{{ major }}$suffix
-      namespace: hel-chrysopoeia
+      namespace: {{ HELMETICA_NAMESPACE }}
     spec:
       interval: 5m
       provider: generic
@@ -194,7 +208,7 @@ infuse namespace="default" id="": build
     kind: ImageRepository
     metadata:
       name: {{ chart }}$suffix
-      namespace: hel-chrysopoeia
+      namespace: {{ HELMETICA_NAMESPACE }}
     spec:
       exclusionList:
         - '^.*\.sig\$'
@@ -208,7 +222,7 @@ infuse namespace="default" id="": build
     kind: ClaimDefinition
     metadata:
       name: $group
-      namespace: hel-chrysopoeia
+      namespace: {{ HELMETICA_NAMESPACE }}
     spec:
       crdNames:
         kind: {{ capitalize(lowercase(chart)) }}
@@ -224,15 +238,15 @@ infuse namespace="default" id="": build
           name: {{ chart }}$suffix
     EOF
 
-    kubectl -n hel-chrysopoeia wait --for condition=Ready \
+    kubectl -n {{ HELMETICA_NAMESPACE }} wait --for condition=Ready \
         "claimdefinition/$group" --timeout 120s
 
     # Manually bump the imagerepository
-    kubectl annotate imagerepository/{{ chart }}$suffix -n hel-chrysopoeia \
+    kubectl annotate imagerepository/{{ chart }}$suffix -n {{ HELMETICA_NAMESPACE }} \
         reconcile.fluxcd.io/requestedAt="$(date +%s)" --overwrite
 
     # and the ocirepository
-    kubectl annotate ocirepository/{{ chart }}-v{{ major }}$suffix -n hel-chrysopoeia \
+    kubectl annotate ocirepository/{{ chart }}-v{{ major }}$suffix -n {{ HELMETICA_NAMESPACE }} \
         reconcile.fluxcd.io/requestedAt="$(date +%s)" --overwrite
 
     # Chrysopoeia derives kind and plural from the chart, so both are read back.
@@ -267,6 +281,8 @@ strain namespace="default":
 decant namespace="default" id="":
     #!/usr/bin/env bash
     set -euo pipefail
+    test -n "{{ HELMETICA_NAMESPACE }}" \
+        || { echo "chrysopoeia-controller-manager not found; is chrysopoeia installed?" >&2; exit 1; }
 
     suffix=""
     if [ -n "{{ id }}" ]; then suffix="-{{ id }}"; fi
@@ -277,7 +293,7 @@ decant namespace="default" id="":
     if [ -n "$crd" ]; then
         kubectl -n {{ namespace }} delete "$crd" {{ chart }} --ignore-not-found
     fi
-    kubectl -n hel-chrysopoeia delete \
+    kubectl -n {{ HELMETICA_NAMESPACE }} delete \
         "claimdefinition/$group" \
         "ocirepository/{{ chart }}-v{{ major }}$suffix" \
         "imagerepository/{{ chart }}$suffix" --ignore-not-found

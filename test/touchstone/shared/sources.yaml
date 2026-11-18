@@ -1,5 +1,5 @@
 # Chrysopoeia only watches ClaimDefinitions in its own namespace,
-# so the source trio lives in hel-chrysopoeia and not in the test namespace.
+# so the source trio lives in the helmetica namespace and not in the test namespace.
 # Names and URLs come from the chart's own metadata, nothing here is reagent specific.
 # $id is a hash of values.yaml (which the CRD schema is generated from) and the
 # test namespace: it keeps every test run on its own API group.
@@ -7,7 +7,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
   name: (join('', [$chart, '-v', $major, '-', $id]))
-  namespace: hel-chrysopoeia
+  namespace: ($values.helmeticaNamespace)
 spec:
   interval: 5m
   provider: generic
@@ -19,7 +19,7 @@ apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: (join('', [$chart, '-', $id]))
-  namespace: hel-chrysopoeia
+  namespace: ($values.helmeticaNamespace)
 spec:
   exclusionList:
     - ^.*\.sig$
@@ -33,7 +33,7 @@ apiVersion: chrysopoeia.helmetica.io/v1
 kind: ClaimDefinition
 metadata:
   name: (join('', ['v', $major, '-', $id, '.', $chart]))
-  namespace: hel-chrysopoeia
+  namespace: ($values.helmeticaNamespace)
 spec:
   reference:
     apiVersion: source.toolkit.fluxcd.io/v1
