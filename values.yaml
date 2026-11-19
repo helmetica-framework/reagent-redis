@@ -144,7 +144,16 @@ service:
   version: '8.2'
 
   # The size of the data volume. Unrelated to the plan: a dataset that fits in memory still
-  # needs room on disk for the append only file and the snapshots beside it.
+  # needs room on disk for the append only file and the snapshots beside it. Must be a valid
+  # quantity, and a claim cannot decrease it.
+  '#storage':
+    max_length: 32
+    validation:
+      - rule: "isQuantity(self)"
+        message: "storage must be a valid quantity"
+      - rule: "!isQuantity(self) || quantity(self).compareTo(quantity(oldSelf)) >= 0"
+        message: "storage cannot be decreased"
+        message_expression: "'storage cannot be decreased from ' + oldSelf + ' to ' + self"
   storage: 10Gi
 
   # redis.conf entries.
