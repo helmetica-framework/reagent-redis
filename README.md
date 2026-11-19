@@ -25,7 +25,6 @@ metadata:
 spec:
   approval:
     strategy: Automatic
-  version: 0.0.1
   values:
     service:
       plan: standard-2
