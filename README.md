@@ -46,7 +46,7 @@ helx-redis-...
 | ----- | ------- | ------------ |
 | `service.plan` | `standard-1` | Cpu and memory of the redis container. See [Plans](#plans). |
 | `service.replicas` | `1` | `1` or `3`. Three brings replication and Sentinel. See [Topology](#topology). |
-| `service.storage` | `10Gi` | The data volume, per replica. Unrelated to the plan: a dataset that fits in memory still needs room on disk for the append only file and the snapshots beside it. |
+| `service.storage` | `10Gi` | The data volume, per replica. Unrelated to the plan: a dataset that fits in memory still needs room on disk for the append only file and the snapshots beside it. Must be a valid quantity. A claim cannot decrease the storage. |
 | `service.config` | `{}` | Extra `redis.conf` entries. Values are strings, so a number needs quoting. `maxmemory` and `min-replicas-to-write` are computed and win over anything set here. |
 | `backup.enabled` | `true` | Whether the service is backed up at all. |
 | `backup.mode` | `Schedule` | `Schedule` drives k8up over the volumes. `BucketOnly` provisions the bucket and stops there. |
