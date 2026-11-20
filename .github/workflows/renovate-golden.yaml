@@ -28,10 +28,10 @@ jobs:
           # renovate: datasource=github-releases depName=casey/just
           just-version: '1.59.0'
 
-      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
+      - uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5
         with:
           # renovate: datasource=github-releases depName=helm/helm
-          version: v4.3.0
+          version: v4.3.2
 
       - run: just gen-golden-all
 
