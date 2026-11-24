@@ -1200,7 +1200,7 @@ renders 7.2:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: quay.io/oliver006/redis_exporter:v1.97.0@sha256:f5f903fbe77571d455ede0453b084d6840bc62fc105efac001034421cab83b99
+              image: quay.io/oliver006/redis_exporter:v1.99.0@sha256:2c0cdc2452096b5af460d870e72fa6ee2ebb971780f443a616885685d2c0ebad
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -3205,7 +3205,7 @@ renders in ha:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: quay.io/oliver006/redis_exporter:v1.97.0@sha256:f5f903fbe77571d455ede0453b084d6840bc62fc105efac001034421cab83b99
+              image: quay.io/oliver006/redis_exporter:v1.99.0@sha256:2c0cdc2452096b5af460d870e72fa6ee2ebb971780f443a616885685d2c0ebad
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -5103,7 +5103,7 @@ renders the newest 8:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: quay.io/oliver006/redis_exporter:v1.97.0@sha256:f5f903fbe77571d455ede0453b084d6840bc62fc105efac001034421cab83b99
+              image: quay.io/oliver006/redis_exporter:v1.99.0@sha256:2c0cdc2452096b5af460d870e72fa6ee2ebb971780f443a616885685d2c0ebad
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -6704,7 +6704,7 @@ renders what it rendered last time:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: quay.io/oliver006/redis_exporter:v1.97.0@sha256:f5f903fbe77571d455ede0453b084d6840bc62fc105efac001034421cab83b99
+              image: quay.io/oliver006/redis_exporter:v1.99.0@sha256:2c0cdc2452096b5af460d870e72fa6ee2ebb971780f443a616885685d2c0ebad
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -8305,7 +8305,7 @@ renders without backups:
                     secretKeyRef:
                       key: auth
                       name: instance-auth
-              image: quay.io/oliver006/redis_exporter:v1.97.0@sha256:f5f903fbe77571d455ede0453b084d6840bc62fc105efac001034421cab83b99
+              image: quay.io/oliver006/redis_exporter:v1.99.0@sha256:2c0cdc2452096b5af460d870e72fa6ee2ebb971780f443a616885685d2c0ebad
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
