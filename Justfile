@@ -135,13 +135,28 @@ push: _guard-unlinked build
     helm push {{ chart }}-{{ version }}.tgz {{ REGISTRY }}
 
 # Read the reagent's purity: end-to-end test against a running athanor cluster (just ignite).
-touchstone:
+# The @ infront of set prevents the whole command to be echoed everytime it's invoked
+[arg('pause', short="p", value="true", help='Pauses Touchstone at failing steps')]
+[arg('verbose',short="v", value="true", help='Make chainsaw output verbose information')]
+[arg('tests', help='Choose which tests should be run, by default the whole suite is executed')]
+[doc('Run the chainsaw test suite, use "just --usage touchstone" for more information"')]
+touchstone pause="false" verbose="false" *tests:
     #!/usr/bin/env bash
     set -euo pipefail
     test -n "{{ HELMETICA_NAMESPACE }}" \
         || { echo "chrysopoeia-controller-manager not found; is chrysopoeia installed?" >&2; exit 1; }
-    {{ CHAINSAW_CMD }} test --config test/touchstone/chainsaw-config.yaml test/touchstone --quiet \
-        --set-string helmeticaNamespace={{ HELMETICA_NAMESPACE }}
+    set --; \
+    if [ -z "{{tests}}" ]; then \
+        set -- test/touchstone; \
+    else \
+        for arg in {{tests}}; do \
+            set -- "$@" "test/touchstone/$arg"; \
+        done; \
+    fi; \
+    {{CHAINSAW_CMD}} test --config test/touchstone/chainsaw-config.yaml "$@" \
+        --set-string helmeticaNamespace={{ HELMETICA_NAMESPACE }} \
+        {{ if verbose == 'true' { "" } else { "--quiet" } }} \
+        {{ if pause == 'true' { "--pause-on-failure" } else { "" } }}
 
 # Push main, tag the current commit and push the tag to trigger the release
 release: _guard-unlinked

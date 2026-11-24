@@ -6,8 +6,23 @@ spec:
   description: >-
     Publishes the chart to the athanor registry, lets chrysopoeia turn it into a
     CRD, claims the instance from instance.yaml and checks assert.yaml against
-    it.
+    it. Everything else is derived from Chart.yaml, so this test needs no edits
+    after a transmutation.
   steps:
     - name: claim an instance and check its workload
       use:
         template: ../shared/claim.yaml
+#    - name: Sample test requiring the instance namespace
+#      try:
+## Get the instanceNamespace from configMap generated in StepTemplate(shared/claim.yaml)
+#      - script:
+#          env:
+#            - name: NAMESPACE
+#              value: ($namespace)
+#          content: |
+#            kubectl get configmap generated-namespace \
+#              -n $NAMESPACE \
+#              -o jsonpath='{.data.namespace}'
+#          outputs:
+#            - name: instanceNS
+#              value: ($stdout)

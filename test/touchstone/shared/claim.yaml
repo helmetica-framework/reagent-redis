@@ -117,6 +117,15 @@ spec:
         outputs:
           - name: instanceNs
             value: ($stdout)
+   # Save the instance Namespace name to use in test steps
+    - create:
+        resource:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: generated-namespace
+          data:
+            namespace: ($instanceNs)
     - assert:
         resource:
           apiVersion: helm.toolkit.fluxcd.io/v2
@@ -164,26 +173,64 @@ spec:
           crd=$(kubectl get crd \
             -o jsonpath="{.items[?(@.spec.group=='v$major-$id.$chart.helmetica-bundles.io')].metadata.name}")
           [ -n "$crd" ] || { echo "no CRD yet"; exit 0; }
-          ns=$(kubectl -n "$NAMESPACE" get "$crd" "$INSTANCE" -o jsonpath='{.status.instanceNamespace}' 2>/dev/null)
-          [ -n "$ns" ] || { echo "no instance namespace yet"; exit 0; }
-          kubectl -n "$ns" describe helmrelease "$INSTANCE"
+          ns=$(kubectl -n "$NAMESPACE" get "$crd" "$INSTANCE" -o jsonpath='{.status.instanceNamespace}')
+          printf '{"chart":"%s","major":"%s","id":"%s","crd":"%s","ns":"%s"}\n' \
+            "$chart" "$major" "$id" "$crd" "$ns"
         env:
           - name: INSTANCE
             value: ($instance)
-    - describe:
-        apiVersion: chrysopoeia.helmetica.io/v1
-        kind: ClaimDefinition
-        namespace: ($values.helmeticaNamespace)
-    - describe:
-        apiVersion: source.toolkit.fluxcd.io/v1
-        kind: OCIRepository
-        namespace: ($values.helmeticaNamespace)
-    - describe:
+        outputs:
+          - name: chart
+            value: (json_parse($stdout).chart)
+          - name: major
+            value: (json_parse($stdout).major)
+          - name: id
+            value: (json_parse($stdout).id)
+          - name: crd
+            value: (json_parse($stdout).crd)
+          - name: instanceNs
+            value: (json_parse($stdout).ns)
+    - script:
+        content: |
+          echo "kubectl -n $instanceNs get helmrelease "$INSTANCE" -o jsonpath='{.status}'"
+          kubectl -n $instanceNs get helmrelease "$INSTANCE" -o jsonpath='{.status}' | jq -r
+        env:
+          - name: INSTANCE
+            value: ($instance)
+          - name: instanceNs
+            value: ($instanceNs)
+    - script:
+        env:
+          - name: major
+            value: ($major)
+          - name: id
+            value: ($id)
+          - name: chart
+            value: ($chart)
+          - name: helmeticaNamespace
+            value: ($values.helmeticaNamespace)
+        content: |
+          name="v$major-$id.$chart"
+          echo "kubectl -n $helmeticaNamespace get claimdefinition $name -ojson"
+          kubectl -n $helmeticaNamespace get claimdefinition $name -ojson | jq -r
+    - script:
+        env:
+          - name: major
+            value: ($major)
+          - name: id
+            value: ($id)
+          - name: chart
+            value: ($chart)
+          - name: helmeticaNamespace
+            value: ($values.helmeticaNamespace)
+        content: |
+          name="$chart-v$major-$id"
+          echo "kubectl -n $helmeticaNamespace get ocirepository $name -o jsonpath='{.status}'"
+          kubectl -n $helmeticaNamespace get ocirepository $name -o jsonpath='{.status}' | jq -r
+    - get:
         apiVersion: chrysopoeia.helmetica.io/v1
         kind: ClaimRevision
-    - describe:
-        apiVersion: ampulla.helmetica.io/v1
-        kind: BackupPolicy
+        format: json
   cleanup:
     # Chrysopoeia owns the generated CRD, chainsaw does not clean it up.
     - script:
