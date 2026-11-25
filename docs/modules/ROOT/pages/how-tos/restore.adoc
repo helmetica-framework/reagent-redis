@@ -1,0 +1,11 @@
+= Restore a backup
+
+Backups are enabled by default and done via K8up with a backup script this chart ships.
+List the existing backups:
+
+[source,console]
+----
+$ kubectl -n <instance-namespace> get snapshots.k8up.io
+----
+
+TODO: restoring a snapshot.

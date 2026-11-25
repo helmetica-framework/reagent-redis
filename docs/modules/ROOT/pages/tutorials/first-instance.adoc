@@ -1,0 +1,30 @@
+= Your first instance
+
+Create a claim in your namespace:
+
+[source,yaml]
+----
+apiVersion: v0.redis.helmetica-bundles.io/bundle
+kind: Redis
+metadata:
+  name: cache
+  namespace: my-app
+spec:
+  approval:
+    strategy: Automatic
+  values:
+    service:
+      plan: standard-2
+      replicas: 3
+      storage: 20Gi
+----
+
+The service is provisioned in its own instance namespace:
+
+[source,console]
+----
+$ kubectl -n my-app get redis cache -o jsonpath='{.status.instanceNamespace}'
+helx-redis-...
+----
+
+Then xref:how-tos/connect.adoc[connect your application].

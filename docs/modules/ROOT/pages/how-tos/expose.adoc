@@ -1,0 +1,10 @@
+= Expose outside the cluster
+
+Set `network.expose: true` in the claim's values to make Redis reachable from outside the cluster.
+With three replicas this exposes the proxy, otherwise the headless service.
+The address goes into the `REDIS_EXTERNAL_*` keys of the xref:references/credentials.adoc[credentials].
+
+Sentinel is not exposed, see xref:explanations/topology.adoc[Topology].
+
+Inside the cluster, only the claim's own namespace may connect.
+Allow more with `network.allowedNamespaces`, or the whole cluster with `network.allowAllNamespaces`.
