@@ -321,3 +321,11 @@ decant namespace="default" id="":
     if [ "{{ namespace }}" != default ]; then
         kubectl delete namespace {{ namespace }} --ignore-not-found
     fi
+
+# Build the docs as they appear on docs.helmetica.io; fails on warnings
+docs:
+    GOTOOLCHAIN=auto GOEXPERIMENT=jsonv2 go run github.com/helmetica-framework/rosarium@v0.1.0 preview .
+
+# Build the docs and serve them on http://localhost:2020
+docs-serve:
+    GOTOOLCHAIN=auto GOEXPERIMENT=jsonv2 go run github.com/helmetica-framework/rosarium@v0.1.0 preview . --serve :2020

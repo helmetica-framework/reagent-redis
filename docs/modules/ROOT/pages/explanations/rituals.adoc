@@ -1,0 +1,5 @@
+= Rituals
+
+Operational actions this reagent ships:
+
+`restart`:: Rolls the statefulset, one pod at a time, so Sentinel always has a master to point at.

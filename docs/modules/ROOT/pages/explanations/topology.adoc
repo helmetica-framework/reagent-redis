@@ -1,0 +1,13 @@
+= Topology
+
+*One replica* is a single Redis that serves reads and writes. It can be scaled to three.
+
+*Three replicas* is one master and two replicas.
+
+The proxy comes with it.
+The `redis` service is headless, so its DNS record answers with every pod, and a client that dials `REDIS_URL` without the proxy would land on a read-only replica two writes in three and get `READONLY`.
+`REDIS_HOST` therefore points at the proxy, which always forwards to the current master.
+A Sentinel-aware client can ignore it and use the `REDIS_SENTINEL_*` credentials instead.
+
+WARNING: Sentinel is not exposed.
+With `network.expose`, a client outside the cluster only reaches the proxy, through the `REDIS_EXTERNAL_*` credentials.

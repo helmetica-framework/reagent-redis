@@ -1,0 +1,13 @@
+= Redis
+
+A Redis service, built on https://github.com/DandyDeveloper/charts/tree/master/charts/redis-ha[redis-ha] as its prima materia.
+
+Ordering one provisions a single instance Redis, or a three-replica setup with Sentinel.
+It comes with backups, network policies and credentials, provided to you in your namespace.
+
+== Order one
+
+include::partial$order-example.adoc[opts=optional]
+
+Every value you can set is listed under xref:references/parameters.adoc[Parameters].
+Start with xref:tutorials/first-instance.adoc[Your first instance].

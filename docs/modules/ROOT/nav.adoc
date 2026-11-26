@@ -1,0 +1,23 @@
+* xref:index.adoc[Overview]
+
+.Tutorials
+* xref:tutorials/first-instance.adoc[Your first instance]
+
+.How-tos
+* xref:how-tos/connect.adoc[Connect your application]
+* xref:how-tos/expose.adoc[Expose outside the cluster]
+* xref:how-tos/change-plan.adoc[Change the plan]
+* xref:how-tos/restore.adoc[Restore a backup]
+
+.Explanations
+* xref:explanations/topology.adoc[Topology]
+* xref:explanations/plans.adoc[Plans and sizing]
+* xref:explanations/rituals.adoc[Rituals]
+
+.References
+* xref:references/credentials.adoc[Credentials]
+* xref:references/release-notes.adoc[Release notes]
+
+.Maintainers
+* xref:explanations/chart-structure.adoc[Chart structure]
+* xref:how-tos/develop.adoc[Develop and test]

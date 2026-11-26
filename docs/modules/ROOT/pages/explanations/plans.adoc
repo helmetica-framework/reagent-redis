@@ -1,0 +1,17 @@
+= Plans and sizing
+
+The number in the plan is gibibytes of memory, and cpu follows it at 250 millicores per gibibyte.
+Requests are set equal to the limits, so the pod is Guaranteed.
+`maxmemory` is three quarters of the limit, leaving the rest for the copy Redis makes while it writes a snapshot.
+
+[cols="1,1,1,1",options="header"]
+|===
+|Plan |Cpu |Memory |`maxmemory`
+
+|`standard-1` |250m |1Gi |768mb
+|`standard-2` |500m |2Gi |1536mb
+|`standard-4` |1000m |4Gi |3072mb
+|`standard-8` |2000m |8Gi |6144mb
+|===
+
+Storage is set separately with `service.storage` and is unrelated to the plan: a dataset that fits in memory still needs room on disk for the append only file and the snapshots beside it.

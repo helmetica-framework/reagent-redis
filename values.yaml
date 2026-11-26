@@ -43,7 +43,7 @@ backup:
 
 # Collect billing relevant values from the claim.
 '#billing':
-  epxort: false
+  export: false
 billing:
   # Whether the framework should bill this service
   enabled: true
@@ -70,8 +70,9 @@ network:
   # Allow access from all namespaces.
   allowAllNamespaces: false
 
-  # Make this service reachable from outside the cluster. The address and port are
-  # reported in the REDIS_EXTERNAL_* credentials. Sentinel is not exposed.
+  # Make this service reachable from outside the cluster: the proxy with three replicas,
+  # otherwise the headless service. The address and port are reported in the
+  # REDIS_EXTERNAL_* credentials. Sentinel is not exposed.
   expose: false
 
   # What `expose` makes reachable. Not settable on a claim. With three replicas the
@@ -106,6 +107,8 @@ credentials:
   enabled: false
 
   # Prefix of the Secret name holding the connection details. Defaults to the claim name.
+  # Custos appends a hash of the claim's group and kind; the full name is in the
+  # CredentialConfig's status.secretName.
   prefix: ""
 
 alerting:

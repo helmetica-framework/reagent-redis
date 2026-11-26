@@ -1,0 +1,6 @@
+= Change the plan
+
+Change `service.plan` in the claim's values to resize the instance; the plans are listed in xref:explanations/plans.adoc[Plans and sizing].
+`service.replicas` takes `1` or `3`.
+
+`service.storage` can grow, but a claim cannot decrease the storage.

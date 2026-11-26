@@ -1,0 +1,14 @@
+= Connect your application
+
+Credentials are automatically provided in the same namespace as the claim, in a Secret named after the claim (or `credentials.prefix`) plus a hash of the claim's group and kind, so a Redis and a PostgreSQL claim sharing a name never share a Secret.
+The full name is in the CredentialConfig's `status.secretName`:
+
+[source,yaml]
+----
+envFrom:
+  - secretRef:
+      name: cache-1a2b3c4d
+----
+
+The keys are listed in xref:references/credentials.adoc[Credentials].
+With three replicas, read xref:explanations/topology.adoc[Topology] first: it explains why `REDIS_HOST` points at a proxy.
