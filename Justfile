@@ -26,7 +26,7 @@ UNITTEST_VERSION := "v1.2.1"
 
 # Pinned until we have a tag, renovate bumps it
 # renovate: datasource=go depName=github.com/helmetica-framework/transmuter
-TRANSMUTER_VERSION := "v0.0.0-20260916092140-fd181efed90a"
+TRANSMUTER_VERSION := "v0.0.0-20261127160847-7f764a48b1aa"
 TRANSMUTER_CMD := "go run github.com/helmetica-framework/transmuter@" + TRANSMUTER_VERSION
 
 _default:
